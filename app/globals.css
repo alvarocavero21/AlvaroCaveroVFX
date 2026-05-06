@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #080808;
+  --gold: #c8a96e;
+  --white: #ffffff;
+  --muted: #555555;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background: #080808;
+  overflow: hidden;
+  height: 100%;
+}
+
+body {
+  background: #080808;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  height: 100%;
+  cursor: none;
+}
+
+/* Hide default cursor everywhere */
+*, *::before, *::after {
+  cursor: none !important;
+}
+
+/* Hide all scrollbars */
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }
+
+/* Film grain overlay */
+.grain::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+  animation: grain-anim 0.4s steps(1) infinite;
+  opacity: 0.6;
+}
+
+@keyframes grain-anim {
+  0%   { transform: translate(0,0)   }
+  11%  { transform: translate(-2%,-2%) }
+  22%  { transform: translate(3%, 1%) }
+  33%  { transform: translate(-1%, 4%) }
+  44%  { transform: translate(4%,-2%) }
+  55%  { transform: translate(-3%, 2%) }
+  66%  { transform: translate(2%,-3%) }
+  77%  { transform: translate(-4%, 1%) }
+  88%  { transform: translate(1%, 3%) }
+  100% { transform: translate(3%,-1%) }
+}
+
+/* Bebas utility */
+.font-bebas { font-family: 'Bebas Neue', sans-serif; }
+
+/* Gold text gradient */
+.text-gold { color: #c8a96e; }
+.border-gold { border-color: #c8a96e; }
+.bg-gold { background-color: #c8a96e; }
+
+/* Snap scroll — prevent any stray scroll-behavior */
+html { scroll-behavior: auto; }
+
+/* Horizontal scroll tags — hide scrollbar */
+.tags-scroll::-webkit-scrollbar { display: none; }
+.tags-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Section base */
+section { position: relative; }
