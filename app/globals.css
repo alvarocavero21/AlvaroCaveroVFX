@@ -147,3 +147,17 @@ section { position: relative; }
   transition: width 0.35s cubic-bezier(0.23,1,0.32,1);
 }
 .link-underline:hover::after { width: 100%; }
+
+/* Vimeo background player — fill container, hide controls */
+.vimeo-bg-player iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 177.78%;   /* 16:9 fill: 100% × (16/9) */
+  height: 100%;
+  min-width: 100%;
+  min-height: 56.25%; /* 100% × (9/16) */
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  border: none;
+}

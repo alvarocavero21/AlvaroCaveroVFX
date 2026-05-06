@@ -5,73 +5,288 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 
-const CATEGORIES = ["ALL", "PYRO & FIRE", "WATER & FLUIDS", "DESTRUCTION", "CHARACTER FX", "ENVIRONMENTS"] as const;
+const CATEGORIES = ["ALL", "COMPOSITING", "PYRO & FIRE", "WATER & FLUIDS", "DESTRUCTION", "CHARACTER FX", "ENVIRONMENTS"] as const;
 type Category = (typeof CATEGORIES)[number];
 
-const projects = [
+type BaseProject = {
+  id: number;
+  title: string;
+  category: Category;
+  software: string[];
+  desc: string;
+  year: string;
+};
+
+type VimeoProject = BaseProject & { vimeoId: string };
+type PlaceholderProject = BaseProject & { vimeoId?: never };
+type Project = VimeoProject | PlaceholderProject;
+
+const projects: Project[] = [
   {
     id: 1,
-    title: "FIRE SCENE 01",
-    category: "PYRO & FIRE" as Category,
-    software: ["Houdini", "Karma", "ComfyUI"],
-    videoUrl: "https://www.youtube.com/watch?v=BkbtGdCxg2E",
-    thumb: "https://img.youtube.com/vi/BkbtGdCxg2E/maxresdefault.jpg",
-    desc: "Burning car simulation with secondary pyro, embers and heat distortion.",
-    year: "2024",
+    title: "FERRARI AND SHIP COMPO",
+    category: "COMPOSITING",
+    software: ["Houdini", "Nuke", "Maya"],
+    vimeoId: "1089906860",
+    desc: "Full compositing pipeline combining Ferrari CGI with live-action ship plate — lighting, integration and final grade.",
+    year: "2025",
   },
   {
     id: 2,
     title: "DRAGON BATTLE",
-    category: "CHARACTER FX" as Category,
+    category: "CHARACTER FX",
     software: ["Houdini", "Karma"],
-    videoUrl: "https://www.youtube.com/watch?v=23VkGD-4uwk",
-    thumb: "https://img.youtube.com/vi/23VkGD-4uwk/maxresdefault.jpg",
     desc: "Full creature FX pipeline with procedural scales, fire breath and cloth simulation.",
     year: "2024",
   },
   {
     id: 3,
     title: "HELICOPTER ISLAND",
-    category: "ENVIRONMENTS" as Category,
+    category: "ENVIRONMENTS",
     software: ["Houdini", "Karma", "ComfyUI"],
-    videoUrl: "https://www.youtube.com/watch?v=RotNWltS9a8",
-    thumb: "https://img.youtube.com/vi/RotNWltS9a8/maxresdefault.jpg",
     desc: "Large-scale procedural island environment with atmospheric FX and rotor wash.",
     year: "2024",
   },
   {
     id: 4,
     title: "WATERFALL",
-    category: "WATER & FLUIDS" as Category,
+    category: "WATER & FLUIDS",
     software: ["Houdini", "FLIP", "Karma"],
-    videoUrl: "https://www.youtube.com/watch?v=22jZR6x_tTo",
-    thumb: "https://img.youtube.com/vi/22jZR6x_tTo/maxresdefault.jpg",
     desc: "FLIP fluid waterfall with whitewater, foam and mist volumes rendered with Karma XPU.",
     year: "2024",
   },
   {
     id: 5,
     title: "DESTRUCTION RIG",
-    category: "DESTRUCTION" as Category,
+    category: "DESTRUCTION",
     software: ["Houdini", "RBD", "Karma"],
-    videoUrl: "https://www.youtube.com/watch?v=BkbtGdCxg2E",
-    thumb: "https://img.youtube.com/vi/BkbtGdCxg2E/maxresdefault.jpg",
     desc: "Procedural constraint network for photorealistic building demolition.",
     year: "2024",
   },
   {
     id: 6,
     title: "BURNING CLOTH",
-    category: "CHARACTER FX" as Category,
+    category: "CHARACTER FX",
     software: ["Houdini", "Vellum", "Karma"],
-    videoUrl: "https://www.youtube.com/watch?v=22jZR6x_tTo",
-    thumb: "https://img.youtube.com/vi/22jZR6x_tTo/maxresdefault.jpg",
     desc: "Vellum cloth destruction with integrated pyro for burning fabric simulation.",
     year: "2025",
   },
 ];
 
-function ProjectCard({ p, i }: { p: (typeof projects)[0]; i: number }) {
+// ── Vimeo Card ────────────────────────────────────────────────────────────────
+
+function VimeoCard({ p, i }: { p: VimeoProject; i: number }) {
+  const [hovered, setHovered] = useState(false);
+  const [modal, setModal] = useState(false);
+  const [thumb, setThumb] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<import("@vimeo/player").default | null>(null);
+  const { ref, inView } = useInView({ threshold: 0.08, triggerOnce: true });
+
+  // Fetch thumbnail
+  useEffect(() => {
+    fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${p.vimeoId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const url: string = data.thumbnail_url ?? "";
+        setThumb(url.replace(/_\d+x\d+(\.\w+)$/, "_1280x720$1"));
+      })
+      .catch(() => {});
+  }, [p.vimeoId]);
+
+  // Vimeo background player
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    let player: import("@vimeo/player").default;
+    import("@vimeo/player").then(({ default: VimeoPlayer }) => {
+      player = new VimeoPlayer(el, {
+        id: parseInt(p.vimeoId),
+        background: true,
+        loop: true,
+        dnt: true,
+        muted: true,
+      });
+      player.ready().then(() => player.pause()).catch(() => {});
+      playerRef.current = player;
+    });
+    return () => {
+      playerRef.current?.destroy();
+      playerRef.current = null;
+    };
+  }, [p.vimeoId]);
+
+  // Play/pause on hover
+  useEffect(() => {
+    if (!playerRef.current) return;
+    if (hovered) {
+      playerRef.current.play().catch(() => {});
+    } else {
+      playerRef.current.pause().catch(() => {});
+    }
+  }, [hovered]);
+
+  // Modal ESC
+  useEffect(() => {
+    if (!modal) return;
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") setModal(false); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [modal]);
+
+  return (
+    <>
+      <SpotlightCard glowColor="gold" customSize className="w-full">
+        <motion.article
+          ref={ref}
+          initial={{ opacity: 0, scale: 0.95, y: 24 }}
+          animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
+          transition={{ duration: 0.65, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+          className="group relative overflow-hidden bg-[#111111] border border-gold/20 hover:border-gold/50 transition-all duration-500 cursor-pointer"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          onClick={() => setModal(true)}
+        >
+          {/* Thumbnail area */}
+          <div className="relative aspect-video overflow-hidden bg-[#0a0a0a]">
+            {/* Static thumbnail */}
+            {thumb && (
+              <img
+                src={thumb}
+                alt={p.title}
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+                style={{ opacity: hovered ? 0 : 1 }}
+              />
+            )}
+
+            {/* Vimeo background player container */}
+            <div
+              ref={containerRef}
+              className="absolute inset-0 w-full h-full vimeo-bg-player"
+              style={{ opacity: hovered ? 1 : 0, transition: "opacity 0.5s ease" }}
+            />
+
+            {/* Dark overlay */}
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all duration-500" />
+
+            {/* Category badge */}
+            <div className="absolute top-3 left-3 z-10">
+              <span
+                className="bg-gold text-black text-[9px] tracking-widest uppercase px-2.5 py-1 font-semibold"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                {p.category}
+              </span>
+            </div>
+            <div className="absolute top-3 right-3 z-10">
+              <span className="text-[9px] tracking-widest text-white/60" style={{ fontFamily: "Inter, sans-serif" }}>
+                {p.year}
+              </span>
+            </div>
+
+            {/* Play button */}
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <motion.div
+                animate={{ scale: hovered ? 1 : 0.85, opacity: hovered ? 1 : 0 }}
+                transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                className="w-14 h-14 rounded-full border border-gold/60 bg-black/40 flex items-center justify-center backdrop-blur-sm"
+              >
+                <svg className="w-5 h-5 text-gold ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Info */}
+          <div className="p-5">
+            <h3
+              className="text-2xl tracking-wider text-white mb-1 transition-colors duration-300 group-hover:text-gold"
+              style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+            >
+              {p.title}
+            </h3>
+            <p className="text-xs text-muted leading-relaxed mb-4" style={{ fontFamily: "Inter, sans-serif" }}>
+              {p.desc}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {p.software.map((sw) => (
+                <span
+                  key={sw}
+                  className="text-[9px] tracking-wider border border-gold/30 text-gold/70 px-2 py-0.5 rounded-full"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  {sw}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom gold glow on hover */}
+          <motion.div
+            animate={{ opacity: hovered ? 1 : 0 }}
+            transition={{ duration: 0.4 }}
+            className="absolute bottom-0 inset-x-0 h-px bg-gold/60"
+          />
+        </motion.article>
+      </SpotlightCard>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {modal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 flex items-center justify-center"
+            style={{ zIndex: 99999, background: "rgba(0,0,0,0.92)" }}
+            onClick={() => setModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.92, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.92, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              className="w-[90vw] max-w-5xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close */}
+              <div className="flex justify-between items-center mb-3 px-1">
+                <h3
+                  className="text-2xl tracking-wider text-white"
+                  style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+                >
+                  {p.title}
+                </h3>
+                <button
+                  onClick={() => setModal(false)}
+                  className="text-muted hover:text-white transition-colors text-xs tracking-widest uppercase"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  ESC to close
+                </button>
+              </div>
+
+              <div className="relative aspect-video bg-black border border-white/10">
+                <iframe
+                  src={`https://player.vimeo.com/video/${p.vimeoId}?autoplay=1&title=0&byline=0&portrait=0&dnt=1`}
+                  className="absolute inset-0 w-full h-full"
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+// ── Placeholder Card ──────────────────────────────────────────────────────────
+
+function ProjectCard({ p, i }: { p: PlaceholderProject; i: number }) {
   const [hovered, setHovered] = useState(false);
   const { ref, inView } = useInView({ threshold: 0.08, triggerOnce: true });
 
@@ -164,19 +379,19 @@ function ProjectCard({ p, i }: { p: (typeof projects)[0]; i: number }) {
 // ── Energy Streams particle background ───────────────────────────────────────
 
 type StreamDef = {
-  yFrac:     number;   // base Y as fraction of canvas height
-  amplitude: number;   // wave amplitude in px
-  frequency: number;   // wave cycles across full canvas width
-  speed:     number;   // how fast particles advance (fraction of canvas width per frame)
+  yFrac:     number;
+  amplitude: number;
+  frequency: number;
+  speed:     number;
   color:     string;
-  count:     number;   // particles in this stream
+  count:     number;
 };
 
 type StreamParticle = {
   streamIdx: number;
-  t:         number;   // 0..1 position along stream (wraps)
+  t:         number;
   size:      number;
-  brightness: number;  // 0..1 — used to pick which part of the stream this particle "is"
+  brightness: number;
 };
 
 function EnergyStreamsCanvas() {
@@ -208,10 +423,8 @@ function EnergyStreamsCanvas() {
       { yFrac: 0.86, amplitude: 44, frequency: 1.6, speed: 0.00120, color: "200,169,110", count: 16 },
     ];
 
-    // Per-stream phase offsets so they all start at different wave positions
     const phaseOffsets = STREAMS.map(() => rand(0, Math.PI * 2));
 
-    // Particles spread evenly across each stream
     const particles: StreamParticle[] = STREAMS.flatMap((s, si) =>
       Array.from({ length: s.count }, (_, pi) => ({
         streamIdx: si,
@@ -221,7 +434,6 @@ function EnergyStreamsCanvas() {
       }))
     );
 
-    // Returns canvas (x, y) for a particle at position t in stream si
     const streamPos = (si: number, t: number, time: number): [number, number] => {
       const s = STREAMS[si];
       const W = canvas.width;
@@ -238,24 +450,19 @@ function EnergyStreamsCanvas() {
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Advance each particle along its stream
       for (const p of particles) {
         const s = STREAMS[p.streamIdx];
         p.t += s.speed;
         if (p.t > 1) p.t -= 1;
       }
 
-      // Draw particles
       for (const p of particles) {
         const s = STREAMS[p.streamIdx];
         const [x, y] = streamPos(p.streamIdx, p.t, time);
 
-        // Head of stream (t near 0 after wrap) = bright; tail = dim
-        // Use a smooth sinusoidal brightness so no hard cutoff
-        const headness = Math.sin(p.t * Math.PI);  // 0→1→0
+        const headness = Math.sin(p.t * Math.PI);
         const baseAlpha = 0.25 + headness * 0.60;
 
-        // Base color alpha
         let alpha: number;
         if (s.color === "200,169,110") {
           alpha = baseAlpha * 0.9;
@@ -296,6 +503,8 @@ function EnergyStreamsCanvas() {
   );
 }
 
+// ── Main Section ──────────────────────────────────────────────────────────────
+
 export default function Projects() {
   const [active, setActive] = useState<Category>("ALL");
   const { ref, inView } = useInView({ threshold: 0.05, triggerOnce: true });
@@ -314,73 +523,77 @@ export default function Projects() {
 
       {/* Section content — scrollable within the 100vh container */}
       <div className="relative flex-1 overflow-y-auto" style={{ zIndex: 10 }}>
-      <div className="max-w-[1400px] mx-auto px-8 py-10">
-        {/* Header */}
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7 }}
-          className="mb-6"
-        >
-          <p
-            className="text-[10px] tracking-[0.5em] uppercase text-gold mb-1"
-            style={{ fontFamily: "Inter, sans-serif" }}
+        <div className="max-w-[1400px] mx-auto px-8 py-10">
+          {/* Header */}
+          <motion.div
+            ref={ref}
+            initial={{ opacity: 0, y: 30 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7 }}
+            className="mb-6"
           >
-            Portfolio
-          </p>
-          <h2
-            className="text-[clamp(2.5rem,6vw,5rem)] leading-none text-white tracking-wide mb-8"
-            style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-          >
-            SELECTED WORK
-          </h2>
+            <p
+              className="text-[10px] tracking-[0.5em] uppercase text-gold mb-1"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
+              Portfolio
+            </p>
+            <h2
+              className="text-[clamp(2.5rem,6vw,5rem)] leading-none text-white tracking-wide mb-8"
+              style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+            >
+              SELECTED WORK
+            </h2>
 
-          {/* Filter tabs */}
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActive(cat)}
-                className={`text-[9px] tracking-[0.3em] uppercase px-4 py-2.5 border transition-all duration-300 ${
-                  active === cat
-                    ? "border-gold bg-gold/10 text-gold"
-                    : "border-white/10 text-muted hover:border-gold/30 hover:text-white/60"
-                }`}
-                style={{ fontFamily: "Inter, sans-serif" }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </motion.div>
+            {/* Filter tabs */}
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActive(cat)}
+                  className={`text-[9px] tracking-[0.3em] uppercase px-4 py-2.5 border transition-all duration-300 ${
+                    active === cat
+                      ? "border-gold bg-gold/10 text-gold"
+                      : "border-white/10 text-muted hover:border-gold/30 hover:text-white/60"
+                  }`}
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </motion.div>
 
-        {/* Gold line */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={inView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.9 }}
-          className="origin-left h-px bg-gold/20 mb-10"
-        />
+          {/* Gold line */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={inView ? { scaleX: 1 } : {}}
+            transition={{ duration: 0.9 }}
+            className="origin-left h-px bg-gold/20 mb-10"
+          />
 
-        {/* Grid */}
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-8">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((p, i) => (
-              <motion.div
-                key={p.id}
-                layout
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.4 }}
-              >
-                <ProjectCard p={p} i={i} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
-      </div>
+          {/* Grid */}
+          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-8">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {"vimeoId" in p && p.vimeoId ? (
+                    <VimeoCard p={p as VimeoProject} i={i} />
+                  ) : (
+                    <ProjectCard p={p as PlaceholderProject} i={i} />
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
