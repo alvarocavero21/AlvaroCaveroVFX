@@ -17,9 +17,9 @@ type BaseProject = {
   year: string;
 };
 
-type VimeoProject = BaseProject & { vimeoId: string };
-type PlaceholderProject = BaseProject & { vimeoId?: never };
-type Project = VimeoProject | PlaceholderProject;
+type YouTubeProject = BaseProject & { youtubeId: string };
+type PlaceholderProject = BaseProject & { youtubeId?: never };
+type Project = YouTubeProject | PlaceholderProject;
 
 const projects: Project[] = [
   {
@@ -27,7 +27,7 @@ const projects: Project[] = [
     title: "FERRARI AND SHIP COMPO",
     category: "COMPOSITING",
     software: ["Houdini", "Nuke", "Maya"],
-    vimeoId: "1089906860",
+    youtubeId: "Y6ztIPGr6_Q",
     desc: "Full compositing pipeline combining Ferrari CGI with live-action ship plate — lighting, integration and final grade.",
     year: "2025",
   },
@@ -73,58 +73,14 @@ const projects: Project[] = [
   },
 ];
 
-// ── Vimeo Card ────────────────────────────────────────────────────────────────
+// ── YouTube Card ──────────────────────────────────────────────────────────────
 
-function VimeoCard({ p, i }: { p: VimeoProject; i: number }) {
+function YouTubeCard({ p, i }: { p: YouTubeProject; i: number }) {
   const [hovered, setHovered] = useState(false);
   const [modal, setModal] = useState(false);
-  const [thumb, setThumb] = useState("");
-  const containerRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<import("@vimeo/player").default | null>(null);
   const { ref, inView } = useInView({ threshold: 0.08, triggerOnce: true });
 
-  // Fetch thumbnail
-  useEffect(() => {
-    fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${p.vimeoId}`)
-      .then((r) => r.json())
-      .then((data) => {
-        const url: string = data.thumbnail_url ?? "";
-        setThumb(url.replace(/_\d+x\d+(\.\w+)$/, "_1280x720$1"));
-      })
-      .catch(() => {});
-  }, [p.vimeoId]);
-
-  // Vimeo background player
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    let player: import("@vimeo/player").default;
-    import("@vimeo/player").then(({ default: VimeoPlayer }) => {
-      player = new VimeoPlayer(el, {
-        id: parseInt(p.vimeoId),
-        background: true,
-        loop: true,
-        dnt: true,
-        muted: true,
-      });
-      player.ready().then(() => player.pause()).catch(() => {});
-      playerRef.current = player;
-    });
-    return () => {
-      playerRef.current?.destroy();
-      playerRef.current = null;
-    };
-  }, [p.vimeoId]);
-
-  // Play/pause on hover
-  useEffect(() => {
-    if (!playerRef.current) return;
-    if (hovered) {
-      playerRef.current.play().catch(() => {});
-    } else {
-      playerRef.current.pause().catch(() => {});
-    }
-  }, [hovered]);
+  const thumb = `https://img.youtube.com/vi/${p.youtubeId}/maxresdefault.jpg`;
 
   // Modal ESC
   useEffect(() => {
@@ -150,21 +106,21 @@ function VimeoCard({ p, i }: { p: VimeoProject; i: number }) {
           {/* Thumbnail area */}
           <div className="relative aspect-video overflow-hidden bg-[#0a0a0a]">
             {/* Static thumbnail */}
-            {thumb && (
-              <img
-                src={thumb}
-                alt={p.title}
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-                style={{ opacity: hovered ? 0 : 1 }}
+            <img
+              src={thumb}
+              alt={p.title}
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+              style={{ opacity: hovered ? 0 : 1 }}
+            />
+
+            {/* Muted autoplay iframe on hover */}
+            {hovered && (
+              <iframe
+                className="absolute inset-0 w-full h-full yt-bg-player pointer-events-none"
+                src={`https://www.youtube.com/embed/${p.youtubeId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${p.youtubeId}&modestbranding=1&rel=0&playsinline=1`}
+                allow="autoplay"
               />
             )}
-
-            {/* Vimeo background player container */}
-            <div
-              ref={containerRef}
-              className="absolute inset-0 w-full h-full vimeo-bg-player"
-              style={{ opacity: hovered ? 1 : 0, transition: "opacity 0.5s ease" }}
-            />
 
             {/* Dark overlay */}
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all duration-500" />
@@ -251,7 +207,7 @@ function VimeoCard({ p, i }: { p: VimeoProject; i: number }) {
               className="w-[90vw] max-w-5xl"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close */}
+              {/* Header */}
               <div className="flex justify-between items-center mb-3 px-1">
                 <h3
                   className="text-2xl tracking-wider text-white"
@@ -270,7 +226,7 @@ function VimeoCard({ p, i }: { p: VimeoProject; i: number }) {
 
               <div className="relative aspect-video bg-black border border-white/10">
                 <iframe
-                  src={`https://player.vimeo.com/video/${p.vimeoId}?autoplay=1&title=0&byline=0&portrait=0&dnt=1`}
+                  src={`https://www.youtube.com/embed/${p.youtubeId}?autoplay=1&rel=0&modestbranding=1`}
                   className="absolute inset-0 w-full h-full"
                   allow="autoplay; fullscreen; picture-in-picture"
                   allowFullScreen
@@ -303,7 +259,6 @@ function ProjectCard({ p, i }: { p: PlaceholderProject; i: number }) {
       >
         {/* Thumbnail — Coming Soon placeholder */}
         <div className="relative aspect-video overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center gap-3">
-          {/* Rotating dashed border */}
           <div
             className="absolute pointer-events-none"
             style={{ inset: 10, animation: "border-spin 14s linear infinite" }}
@@ -311,7 +266,6 @@ function ProjectCard({ p, i }: { p: PlaceholderProject; i: number }) {
             <div style={{ width: "100%", height: "100%", border: "1px dashed rgba(200,169,110,0.22)" }} />
           </div>
 
-          {/* Category badge */}
           <div className="absolute top-3 left-3">
             <span
               className="bg-gold text-black text-[9px] tracking-widest uppercase px-2.5 py-1 font-semibold"
@@ -326,7 +280,6 @@ function ProjectCard({ p, i }: { p: PlaceholderProject; i: number }) {
             </span>
           </div>
 
-          {/* Coming Soon label */}
           <span
             className="text-[10px] tracking-[0.45em] uppercase"
             style={{ fontFamily: "Inter, sans-serif", color: "#c8a96e", animation: "cs-pulse 2.4s ease-in-out infinite" }}
@@ -365,7 +318,6 @@ function ProjectCard({ p, i }: { p: PlaceholderProject; i: number }) {
           </div>
         </div>
 
-        {/* Bottom glow on hover */}
         <motion.div
           animate={{ opacity: hovered ? 1 : 0 }}
           transition={{ duration: 0.4 }}
@@ -513,18 +465,14 @@ export default function Projects() {
 
   return (
     <section id="work" className="relative h-screen bg-[#080808] overflow-hidden flex flex-col">
-      {/* Energy streams background */}
       <EnergyStreamsCanvas />
-      {/* Dark overlay — keeps cards readable */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{ background: "rgba(8,8,8,0.90)", zIndex: 2 }}
       />
 
-      {/* Section content — scrollable within the 100vh container */}
       <div className="relative flex-1 overflow-y-auto" style={{ zIndex: 10 }}>
         <div className="max-w-[1400px] mx-auto px-8 py-10">
-          {/* Header */}
           <motion.div
             ref={ref}
             initial={{ opacity: 0, y: 30 }}
@@ -545,7 +493,6 @@ export default function Projects() {
               SELECTED WORK
             </h2>
 
-            {/* Filter tabs */}
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((cat) => (
                 <button
@@ -564,7 +511,6 @@ export default function Projects() {
             </div>
           </motion.div>
 
-          {/* Gold line */}
           <motion.div
             initial={{ scaleX: 0 }}
             animate={inView ? { scaleX: 1 } : {}}
@@ -572,7 +518,6 @@ export default function Projects() {
             className="origin-left h-px bg-gold/20 mb-10"
           />
 
-          {/* Grid */}
           <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-8">
             <AnimatePresence mode="popLayout">
               {filtered.map((p, i) => (
@@ -584,8 +529,8 @@ export default function Projects() {
                   exit={{ opacity: 0, scale: 0.96 }}
                   transition={{ duration: 0.4 }}
                 >
-                  {"vimeoId" in p && p.vimeoId ? (
-                    <VimeoCard p={p as VimeoProject} i={i} />
+                  {"youtubeId" in p && p.youtubeId ? (
+                    <YouTubeCard p={p as YouTubeProject} i={i} />
                   ) : (
                     <ProjectCard p={p as PlaceholderProject} i={i} />
                   )}
