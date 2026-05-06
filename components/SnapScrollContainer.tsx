@@ -3,85 +3,166 @@
 import { useCallback, useEffect, useRef, useState, Children } from "react";
 
 const DURATION = 800;
-const EASING = "cubic-bezier(0.76, 0, 0.24, 1)";
+const EASING   = "cubic-bezier(0.76, 0, 0.24, 1)";
+const SECTION_NAMES = ["Hero", "Showreel", "Work", "Contact"];
 
+// ── Per-dot component so each can have its own hover state ───────────────────
+function NavDot({
+  index,
+  isActive,
+  name,
+  onClick,
+}: {
+  index: number;
+  isActive: boolean;
+  name: string;
+  onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+      {/* Section label — slides in from right on hover */}
+      <span
+        style={{
+          position: "absolute",
+          right: "calc(100% + 12px)",
+          fontSize: 9,
+          letterSpacing: "0.32em",
+          textTransform: "uppercase",
+          fontFamily: "Inter, sans-serif",
+          color: isActive ? "#c8a96e" : "rgba(255,255,255,0.45)",
+          whiteSpace: "nowrap",
+          pointerEvents: "none",
+          opacity: hovered ? 1 : 0,
+          transform: hovered ? "translateX(0)" : "translateX(8px)",
+          transition: "opacity 0.25s ease, transform 0.25s ease",
+        }}
+      >
+        {name}
+      </span>
+
+      <button
+        onClick={onClick}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        aria-label={`Go to ${name}`}
+        style={{
+          width:  isActive ? 10 : hovered ? 8 : 6,
+          height: isActive ? 10 : hovered ? 8 : 6,
+          borderRadius: "50%",
+          background: isActive
+            ? "#c8a96e"
+            : hovered
+            ? "rgba(200,169,110,0.55)"
+            : "rgba(255,255,255,0.28)",
+          border: "none",
+          padding: 0,
+          outline: "none",
+          transition: "all 0.35s cubic-bezier(0.23,1,0.32,1)",
+          animation: isActive ? "dot-pulse 2.2s ease-in-out infinite" : "none",
+          boxShadow: isActive ? "0 0 10px rgba(200,169,110,0.5)" : "none",
+        }}
+      />
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 export default function SnapScrollContainer({ children }: { children: React.ReactNode }) {
-  const [current, setCurrent] = useState(0);
-  const transitioning = useRef(false);
-  const currentRef = useRef(0);
-  const touchStartY = useRef(0);
-  const sections = Children.toArray(children);
-  const total = sections.length;
+  const [current, setCurrent]   = useState(0);
+  const transitioning           = useRef(false);
+  const currentRef              = useRef(0);
+  const touchStartY             = useRef(0);
+  const dispatchingRef          = useRef(false);
+  const containerRef            = useRef<HTMLDivElement>(null);
+  const sections                = Children.toArray(children);
+  const total                   = sections.length;
 
   const goTo = useCallback((next: number) => {
     if (next < 0 || next >= total) return;
     if (next === currentRef.current) return;
+
     transitioning.current = true;
-    currentRef.current = next;
+    currentRef.current    = next;
     setCurrent(next);
+
+    // Brief blur on the whole stack during snap
+    const el = containerRef.current;
+    if (el) {
+      el.style.filter = "blur(1.5px)";
+      el.style.transition = "filter 0.12s ease";
+      setTimeout(() => {
+        el.style.filter = "none";
+        el.style.transition = "filter 0.2s ease";
+      }, 180);
+    }
+
+    // Broadcast section change (Navbar + Hero listen to this)
+    dispatchingRef.current = true;
+    window.dispatchEvent(new CustomEvent("snap-section", { detail: next }));
+    dispatchingRef.current = false;
+
     setTimeout(() => { transitioning.current = false; }, DURATION + 100);
   }, [total]);
 
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      // Allow scrolling inside elements that have scrollable overflow
       const target = e.target as HTMLElement;
       let el: HTMLElement | null = target;
       while (el && el !== document.body) {
         const style = window.getComputedStyle(el);
-        const canScroll = (style.overflowY === "auto" || style.overflowY === "scroll") && el.scrollHeight > el.clientHeight;
-        if (canScroll) {
-          const atTop = el.scrollTop <= 0;
-          const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
-          if (e.deltaY < 0 && !atTop) return;
-          if (e.deltaY > 0 && !atBottom) return;
+        const scrollable = (style.overflowY === "auto" || style.overflowY === "scroll") && el.scrollHeight > el.clientHeight;
+        if (scrollable) {
+          if (e.deltaY < 0 && el.scrollTop > 0) return;
+          if (e.deltaY > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 2) return;
         }
         el = el.parentElement;
       }
-
       e.preventDefault();
       if (transitioning.current) return;
       if (e.deltaY > 0) goTo(currentRef.current + 1);
-      else goTo(currentRef.current - 1);
+      else               goTo(currentRef.current - 1);
     };
 
     const onKey = (e: KeyboardEvent) => {
       if (["ArrowDown", "PageDown"].includes(e.key)) { e.preventDefault(); goTo(currentRef.current + 1); }
-      if (["ArrowUp", "PageUp"].includes(e.key)) { e.preventDefault(); goTo(currentRef.current - 1); }
+      if (["ArrowUp",   "PageUp"].includes(e.key))   { e.preventDefault(); goTo(currentRef.current - 1); }
     };
 
     const onTouchStart = (e: TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
-    const onTouchEnd = (e: TouchEvent) => {
+    const onTouchEnd   = (e: TouchEvent) => {
       if (transitioning.current) return;
       const d = touchStartY.current - e.changedTouches[0].clientY;
-      if (d > 50) goTo(currentRef.current + 1);
+      if (d > 50)       goTo(currentRef.current + 1);
       else if (d < -50) goTo(currentRef.current - 1);
     };
 
+    // "snap-goto" = external command (navbar links, buttons)
     const onGoto = (e: Event) => {
       transitioning.current = false;
       goTo((e as CustomEvent<number>).detail);
     };
 
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("keydown", onKey);
+    window.addEventListener("wheel",      onWheel, { passive: false });
+    window.addEventListener("keydown",    onKey);
     window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchend", onTouchEnd, { passive: true });
-    window.addEventListener("snap-goto", onGoto);
+    window.addEventListener("touchend",   onTouchEnd,   { passive: true });
+    window.addEventListener("snap-goto",  onGoto);
 
     return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("wheel",      onWheel);
+      window.removeEventListener("keydown",    onKey);
       window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("snap-goto", onGoto);
+      window.removeEventListener("touchend",   onTouchEnd);
+      window.removeEventListener("snap-goto",  onGoto);
     };
   }, [goTo]);
 
   return (
     <>
-      {/* Section stack — fixed, full-viewport */}
-      <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
+      {/* Section stack */}
+      <div ref={containerRef} style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
         {sections.map((section, i) => (
           <div
             key={i}
@@ -101,7 +182,7 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
         ))}
       </div>
 
-      {/* Dot navigation — fixed right side */}
+      {/* Dot navigation */}
       <nav
         aria-label="Section navigation"
         style={{
@@ -112,27 +193,17 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
           zIndex: 99999,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          gap: 14,
+          alignItems: "flex-end",
+          gap: 16,
         }}
       >
         {sections.map((_, i) => (
-          <button
+          <NavDot
             key={i}
+            index={i}
+            isActive={i === current}
+            name={SECTION_NAMES[i] ?? `Section ${i + 1}`}
             onClick={() => { transitioning.current = false; goTo(i); }}
-            aria-label={`Go to section ${i + 1}`}
-            style={{
-              width: i === current ? 10 : 6,
-              height: i === current ? 10 : 6,
-              borderRadius: "50%",
-              background: i === current ? "#c8a96e" : "rgba(255,255,255,0.28)",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-              outline: "none",
-              transition: "all 0.35s ease",
-              boxShadow: i === current ? "0 0 10px rgba(200,169,110,0.5)" : "none",
-            }}
           />
         ))}
       </nav>

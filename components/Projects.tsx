@@ -88,6 +88,14 @@ function ProjectCard({ p, i }: { p: (typeof projects)[0]; i: number }) {
       >
         {/* Thumbnail — Coming Soon placeholder */}
         <div className="relative aspect-video overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center gap-3">
+          {/* Rotating dashed border */}
+          <div
+            className="absolute pointer-events-none"
+            style={{ inset: 10, animation: "border-spin 14s linear infinite" }}
+          >
+            <div style={{ width: "100%", height: "100%", border: "1px dashed rgba(200,169,110,0.22)" }} />
+          </div>
+
           {/* Category badge */}
           <div className="absolute top-3 left-3">
             <span
@@ -106,13 +114,13 @@ function ProjectCard({ p, i }: { p: (typeof projects)[0]; i: number }) {
           {/* Coming Soon label */}
           <span
             className="text-[10px] tracking-[0.45em] uppercase"
-            style={{ fontFamily: "Inter, sans-serif", color: "#c8a96e" }}
+            style={{ fontFamily: "Inter, sans-serif", color: "#c8a96e", animation: "cs-pulse 2.4s ease-in-out infinite" }}
           >
             Coming Soon
           </span>
           <motion.div
             animate={{ scaleX: hovered ? 1 : 0.4, opacity: hovered ? 0.7 : 0.3 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             className="h-px bg-gold origin-center"
             style={{ width: 48 }}
           />

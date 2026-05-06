@@ -58,14 +58,20 @@ function ShowreelPlaceholder() {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-black">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+      {/* Rotating dashed border */}
+      <div
+        className="absolute pointer-events-none"
+        style={{ inset: 16, animation: "border-spin 18s linear infinite" }}
+      >
+        <div style={{ width: "100%", height: "100%", border: "1px dashed rgba(200,169,110,0.18)" }} />
+      </div>
+
       <div className="relative z-10 flex flex-col items-center gap-4">
-        <p
-          style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(3rem,8vw,7rem)", color: "#c8a96e", letterSpacing: "0.15em", lineHeight: 1 }}
-        >
+        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(3rem,8vw,7rem)", color: "#c8a96e", letterSpacing: "0.15em", lineHeight: 1 }}>
           SHOWREEL
         </p>
         <p
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "clamp(10px,1.2vw,14px)", color: "rgba(255,255,255,0.55)", letterSpacing: "0.5em", textTransform: "uppercase" }}
+          style={{ fontFamily: "Inter, sans-serif", fontSize: "clamp(10px,1.2vw,14px)", color: "rgba(255,255,255,0.55)", letterSpacing: "0.5em", textTransform: "uppercase", animation: "cs-pulse 2.4s ease-in-out infinite" }}
         >
           Coming Soon
         </p>

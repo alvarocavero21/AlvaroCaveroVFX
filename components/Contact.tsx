@@ -1,8 +1,62 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+
+// Magnetic pull toward cursor within RADIUS px
+function MagneticLink({ href, target, rel, children, className }: {
+  href: string;
+  target?: string;
+  rel?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const ref = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    const RADIUS = 80;
+    const STRENGTH = 0.28;
+    const el = ref.current;
+    if (!el) return;
+
+    const onMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width  / 2;
+      const cy = rect.top  + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < RADIUS) {
+        const pull = (RADIUS - dist) / RADIUS;
+        el.style.transform = `translate(${dx * pull * STRENGTH}px, ${dy * pull * STRENGTH}px)`;
+      } else {
+        el.style.transform = "translate(0,0)";
+      }
+    };
+    const onLeave = () => { el.style.transform = "translate(0,0)"; };
+
+    window.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
+
+  return (
+    <a
+      ref={ref}
+      href={href}
+      target={target}
+      rel={rel}
+      className={className}
+      style={{ transition: "transform 0.35s cubic-bezier(0.23,1,0.32,1)", display: "block" }}
+    >
+      {children}
+    </a>
+  );
+}
 
 const socials = [
   {
@@ -107,39 +161,28 @@ export default function Contact() {
 
             <div className="space-y-3 mb-10">
               {socials.map((s) => (
-                <a
+                <MagneticLink
                   key={s.label}
                   href={s.href}
                   target={s.label !== "Email" ? "_blank" : undefined}
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-4 p-4 border border-white/[0.06] hover:border-gold/40 hover:bg-gold/[0.04] transition-all duration-400"
+                  className="group flex items-center gap-4 p-4 border border-white/[0.06] hover:border-gold/40 hover:bg-gold/[0.04] transition-all duration-300"
                 >
                   <span className="text-gold/50 group-hover:text-gold transition-colors duration-300">
                     {s.icon}
                   </span>
                   <div>
-                    <p
-                      className="text-[9px] tracking-widest uppercase text-muted mb-0.5"
-                      style={{ fontFamily: "Inter, sans-serif" }}
-                    >
+                    <p className="text-[9px] tracking-widest uppercase text-muted mb-0.5" style={{ fontFamily: "Inter, sans-serif" }}>
                       {s.label}
                     </p>
-                    <p
-                      className="text-sm text-white/60 group-hover:text-white transition-colors duration-300"
-                      style={{ fontFamily: "Inter, sans-serif" }}
-                    >
+                    <p className="text-sm text-white/60 group-hover:text-white transition-colors duration-300" style={{ fontFamily: "Inter, sans-serif" }}>
                       {s.value}
                     </p>
                   </div>
-                  <svg
-                    className="w-3 h-3 ml-auto text-muted/30 group-hover:text-gold/50 transition-colors"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="w-3 h-3 ml-auto text-muted/30 group-hover:text-gold/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
                   </svg>
-                </a>
+                </MagneticLink>
               ))}
             </div>
 
@@ -226,8 +269,16 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={status === "sending"}
-                  className="w-full bg-gold hover:bg-[#b8995e] disabled:opacity-60 text-black text-xs tracking-[0.35em] uppercase font-semibold py-4 flex items-center justify-center gap-3 transition-all duration-300"
+                  className="btn-shine btn-press relative overflow-hidden w-full bg-gold hover:bg-[#b8995e] disabled:opacity-60 text-black text-xs tracking-[0.35em] uppercase font-semibold py-4 flex items-center justify-center gap-3 transition-all duration-300"
                   style={{ fontFamily: "Inter, sans-serif" }}
+                  onClick={(e) => {
+                    const btn = e.currentTarget;
+                    const rect = btn.getBoundingClientRect();
+                    const span = document.createElement("span");
+                    span.style.cssText = `position:absolute;left:${e.clientX-rect.left}px;top:${e.clientY-rect.top}px;width:80px;height:80px;border-radius:50%;background:rgba(0,0,0,0.18);transform:translate(-50%,-50%) scale(0);animation:ripple-expand 0.65s cubic-bezier(0.23,1,0.32,1) forwards;pointer-events:none;z-index:10`;
+                    btn.appendChild(span);
+                    setTimeout(() => span.remove(), 700);
+                  }}
                 >
                   {status === "sending" ? (
                     <>

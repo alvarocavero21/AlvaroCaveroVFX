@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useAnimationControls } from "framer-motion";
 import MagneticWrapper from "./MagneticWrapper";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 
@@ -161,6 +161,7 @@ function HeroLogo({ sw }: { sw: HeroSW }) {
 
 export default function Hero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [showHint, setShowHint] = useState(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -232,6 +233,15 @@ export default function Hero() {
     };
   }, []);
 
+  // Hide scroll hint once user navigates away (never bring it back — it's a first-visit cue)
+  useEffect(() => {
+    const handle = (e: Event) => {
+      if ((e as CustomEvent<number>).detail !== 0) setShowHint(false);
+    };
+    window.addEventListener("snap-section", handle);
+    return () => window.removeEventListener("snap-section", handle);
+  }, []);
+
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden bg-bg">
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
@@ -254,11 +264,7 @@ export default function Hero() {
             <motion.h1
               initial={{ opacity: 0, letterSpacing: "0.5em", filter: "blur(10px)", y: 20 }}
               animate={{ opacity: 1, letterSpacing: "0.15em", filter: "blur(0px)", y: 0 }}
-              transition={{
-                duration: 1.2,
-                delay: 0.3,
-                ease: [0.25, 0.46, 0.45, 0.94],
-              }}
+              transition={{ duration: 1.2, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
                 fontSize: "clamp(80px, 12vw, 160px)",
@@ -269,7 +275,15 @@ export default function Hero() {
                 lineHeight: 0.9,
               }}
             >
-              ALVARO
+              {"ALVARO".split("").map((ch, i) => (
+                <motion.span
+                  key={i}
+                  whileHover={{ y: -10, color: "#ffffff", transition: { type: "spring", stiffness: 500, damping: 18 } }}
+                  style={{ display: "inline-block", cursor: "default" }}
+                >
+                  {ch}
+                </motion.span>
+              ))}
             </motion.h1>
           </SpotlightCard>
           <motion.p
@@ -314,7 +328,7 @@ export default function Hero() {
             <MagneticWrapper>
               <button
                 onClick={() => window.dispatchEvent(new CustomEvent("snap-goto", { detail: 1 }))}
-                className="group flex items-center gap-3 text-xs tracking-[0.3em] uppercase border border-gold/50 hover:border-gold hover:bg-gold/10 text-gold px-8 py-4 transition-all duration-400"
+                className="btn-shine btn-press group flex items-center gap-3 text-xs tracking-[0.3em] uppercase border border-gold/50 hover:border-gold hover:bg-gold/10 text-gold px-8 py-4 transition-all duration-300"
                 style={{ fontFamily: "Inter, sans-serif" }}
               >
                 <svg className="w-3 h-3 fill-current" viewBox="0 0 12 12">
@@ -343,11 +357,11 @@ export default function Hero() {
 
       </div>
 
-      {/* Scroll hint */}
+      {/* Scroll hint — fades out once user navigates away */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2.2, duration: 1 }}
+        animate={{ opacity: showHint ? 1 : 0, y: showHint ? 0 : 12 }}
+        transition={{ delay: showHint ? 2.2 : 0, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         onClick={() => window.dispatchEvent(new CustomEvent("snap-goto", { detail: 1 }))}
         style={{ cursor: "pointer" }}

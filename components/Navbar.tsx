@@ -18,8 +18,13 @@ export default function Navbar() {
 
   useEffect(() => {
     const onSection = (e: Event) => setCurrentSection((e as CustomEvent<number>).detail);
-    window.addEventListener("snap-goto", onSection);
-    return () => window.removeEventListener("snap-goto", onSection);
+    // snap-goto = clicked nav link; snap-section = scroll/keyboard navigation
+    window.addEventListener("snap-goto",    onSection);
+    window.addEventListener("snap-section", onSection);
+    return () => {
+      window.removeEventListener("snap-goto",    onSection);
+      window.removeEventListener("snap-section", onSection);
+    };
   }, []);
 
   const scrolled = currentSection > 0;
@@ -48,7 +53,7 @@ export default function Navbar() {
             <button
               key={l.label}
               onClick={() => goto(l.section)}
-              className={`text-[11px] tracking-[0.35em] uppercase transition-colors duration-300 ${
+              className={`link-underline btn-press text-[11px] tracking-[0.35em] uppercase transition-colors duration-300 ${
                 currentSection === l.section ? "text-gold" : "text-muted hover:text-gold"
               }`}
               style={{ fontFamily: "Inter, sans-serif" }}

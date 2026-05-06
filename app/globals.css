@@ -85,3 +85,65 @@ html { scroll-behavior: auto; }
 
 /* Section base */
 section { position: relative; }
+
+/* ── Micro-interaction utilities ────────────────────────────────────────────── */
+
+/* Consistent easing token */
+:root { --ease-out: cubic-bezier(0.23, 1, 0.32, 1); }
+
+/* Button press scale */
+.btn-press { transition: transform 0.3s cubic-bezier(0.23,1,0.32,1); }
+.btn-press:active { transform: scale(0.97) !important; }
+
+/* Button shine sweep */
+.btn-shine { position: relative; overflow: hidden; }
+.btn-shine::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -80%;
+  width: 45%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.09), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+  z-index: 1;
+}
+.btn-shine:hover::before { animation: shine-sweep 0.6s cubic-bezier(0.23,1,0.32,1) forwards; }
+
+@keyframes shine-sweep {
+  from { left: -80%; }
+  to   { left: 110%; }
+}
+
+/* Active nav dot pulse */
+@keyframes dot-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(200,169,110,0.55); }
+  50%       { box-shadow: 0 0 16px rgba(200,169,110,0.28), 0 0 0 4px rgba(200,169,110,0.1); }
+}
+
+/* Coming Soon dashed-border spin */
+@keyframes border-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Coming Soon text pulse */
+@keyframes cs-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+
+/* Ripple expand */
+@keyframes ripple-expand {
+  to { transform: translate(-50%,-50%) scale(5); opacity: 0; }
+}
+
+/* Gold underline draw */
+.link-underline { position: relative; }
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 0; height: 1px;
+  background: #c8a96e;
+  transition: width 0.35s cubic-bezier(0.23,1,0.32,1);
+}
+.link-underline:hover::after { width: 100%; }
