@@ -77,10 +77,60 @@ const HERO_SOFTWARE: HeroSW[] = [
 
 function HeroLogo({ sw }: { sw: HeroSW }) {
   const [failed, setFailed] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const rotateY = ((e.clientX - (rect.left + rect.width / 2)) / rect.width) * 30;
+    const rotateX = -((e.clientY - (rect.top + rect.height / 2)) / rect.height) * 30;
+    setTilt({ x: rotateX, y: rotateY });
+  };
+
+  const handleMouseEnter = () => setHovered(true);
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    setTilt({ x: 0, y: 0 });
+  };
+
+  const transform = hovered
+    ? `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateZ(20px) scale(1.05)`
+    : "perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px) scale(1)";
+
+  const transition = hovered
+    ? "transform 0.1s ease, box-shadow 0.1s ease"
+    : "transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1)";
+
   return (
-    <div className="flex flex-col items-center gap-2.5">
+    <div
+      ref={cardRef}
+      className="flex flex-col items-center gap-2.5 p-3 rounded-sm cursor-default"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transform,
+        transition,
+        transformStyle: "preserve-3d",
+        willChange: "transform",
+        boxShadow: hovered ? "0 20px 40px rgba(200,169,110,0.4)" : "0 0 0 rgba(0,0,0,0)",
+      }}
+    >
       {/* 70×70px logo */}
-      <div style={{ width: 70, height: 70, color: "#c8a96e", opacity: 0.48 }}>
+      <div
+        style={{
+          width: 70,
+          height: 70,
+          color: "#c8a96e",
+          opacity: hovered ? 0.75 : 0.48,
+          filter: hovered ? "brightness(1.3)" : "brightness(1)",
+          transition: hovered ? "opacity 0.1s ease, filter 0.1s ease" : "opacity 0.4s ease, filter 0.4s ease",
+        }}
+      >
         {sw.slug && !failed ? (
           <img
             src={`https://cdn.simpleicons.org/${sw.slug}/c8a96e`}
@@ -96,7 +146,11 @@ function HeroLogo({ sw }: { sw: HeroSW }) {
       </div>
       <span
         className="text-[8.5px] tracking-[0.3em] uppercase"
-        style={{ fontFamily: "Inter, sans-serif", color: "rgba(255,255,255,0.20)" }}
+        style={{
+          fontFamily: "Inter, sans-serif",
+          color: hovered ? "rgba(200,169,110,0.6)" : "rgba(255,255,255,0.20)",
+          transition: hovered ? "color 0.1s ease" : "color 0.4s ease",
+        }}
       >
         {sw.name}
       </span>
