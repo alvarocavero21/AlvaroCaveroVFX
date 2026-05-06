@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { Player } from "@remotion/player";
 import MagneticWrapper from "./MagneticWrapper";
+import { TrackingIn } from "./ui/tracking-in";
 
 // ── Inline SVG icons ──────────────────────────────────────────────────────────
 
@@ -158,6 +160,19 @@ function HeroLogo({ sw }: { sw: HeroSW }) {
   );
 }
 
+const HeroTitle: React.FC = () => (
+  <TrackingIn
+    text="ALVARO CAVERO"
+    startTracking={0.8}
+    startBlur={16}
+    fontSize={96}
+    color="#ffffff"
+    background="transparent"
+    fontWeight={700}
+    speed={0.8}
+  />
+);
+
 export default function Hero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -231,15 +246,6 @@ export default function Hero() {
     };
   }, []);
 
-  const wordAnim = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.04 } },
-  };
-  const letterAnim = {
-    hidden: { opacity: 0, y: 60 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number,number,number,number] } },
-  };
-
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden bg-bg">
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
@@ -254,46 +260,18 @@ export default function Hero() {
 
         {/* ── Name group ── */}
         <div>
-          {/* ALVARO */}
-          <motion.div
-            variants={wordAnim}
-            initial="hidden"
-            animate="visible"
-            transition={{ delayChildren: 1.8 }}
-            className="flex justify-center overflow-hidden"
-            style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-          >
-            {"ALVARO".split("").map((ch, i) => (
-              <motion.span
-                key={i}
-                variants={letterAnim}
-                className="block text-white"
-                style={{ fontSize: "clamp(5rem,14vw,13rem)", lineHeight: 0.9, letterSpacing: "0.12em" }}
-              >
-                {ch}
-              </motion.span>
-            ))}
-          </motion.div>
-
-          {/* CAVERO */}
-          <motion.div
-            variants={wordAnim}
-            initial="hidden"
-            animate="visible"
-            transition={{ delayChildren: 2.0 }}
-            className="flex justify-center overflow-hidden"
-            style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-          >
-            {"CAVERO".split("").map((ch, i) => (
-              <motion.span
-                key={i}
-                variants={letterAnim}
-                style={{ fontSize: "clamp(5rem,14vw,13rem)", lineHeight: 0.9, letterSpacing: "0.12em", color: "#c8a96e" }}
-              >
-                {ch}
-              </motion.span>
-            ))}
-          </motion.div>
+          <Player
+            component={HeroTitle}
+            durationInFrames={90}
+            fps={30}
+            compositionWidth={1200}
+            compositionHeight={200}
+            controls={false}
+            autoPlay
+            loop={false}
+            acknowledgeRemotionLicense
+            style={{ width: "100%", height: "auto", background: "transparent" }}
+          />
         </div>
 
         {/* ── Subtitle group ── */}
