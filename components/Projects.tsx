@@ -3,9 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import dynamic from "next/dynamic";
-
-const ReactPlayer = dynamic(() => import("react-player/youtube"), { ssr: false });
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 
 const CATEGORIES = ["ALL", "PYRO & FIRE", "WATER & FLUIDS", "DESTRUCTION", "CHARACTER FX", "ENVIRONMENTS"] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -75,48 +73,21 @@ const projects = [
 
 function ProjectCard({ p, i }: { p: (typeof projects)[0]; i: number }) {
   const [hovered, setHovered] = useState(false);
-  const [modal, setModal] = useState(false);
   const { ref, inView } = useInView({ threshold: 0.08, triggerOnce: true });
 
   return (
-    <>
+    <SpotlightCard glowColor="blue" customSize className="w-full">
       <motion.article
         ref={ref}
         initial={{ opacity: 0, scale: 0.95, y: 24 }}
         animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
         transition={{ duration: 0.65, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-        className="group relative overflow-hidden bg-[#111111] border border-white/[0.06] hover:border-gold/30 transition-all duration-500 cursor-pointer"
+        className="group relative overflow-hidden bg-[#111111] border border-white/[0.06] hover:border-gold/30 transition-all duration-500"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={() => setModal(true)}
-        data-cursor
       >
-        {/* Thumbnail */}
-        <div className="relative aspect-video overflow-hidden">
-          <motion.div
-            animate={{ scale: hovered ? 1.06 : 1 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${p.thumb})` }}
-          />
-          <div
-            className="absolute inset-0 transition-opacity duration-500"
-            style={{ background: hovered ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.5)" }}
-          />
-
-          {/* Play icon */}
-          <motion.div
-            animate={{ opacity: hovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <div className="w-12 h-12 rounded-full border border-gold/60 flex items-center justify-center bg-black/30">
-              <svg className="w-4 h-4 text-gold fill-current ml-0.5" viewBox="0 0 12 12">
-                <polygon points="2,1 11,6 2,11" />
-              </svg>
-            </div>
-          </motion.div>
-
+        {/* Thumbnail — Coming Soon placeholder */}
+        <div className="relative aspect-video overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center gap-3">
           {/* Category badge */}
           <div className="absolute top-3 left-3">
             <span
@@ -127,13 +98,24 @@ function ProjectCard({ p, i }: { p: (typeof projects)[0]; i: number }) {
             </span>
           </div>
           <div className="absolute top-3 right-3">
-            <span
-              className="text-[9px] tracking-widest text-white/40"
-              style={{ fontFamily: "Inter, sans-serif" }}
-            >
+            <span className="text-[9px] tracking-widest text-white/40" style={{ fontFamily: "Inter, sans-serif" }}>
               {p.year}
             </span>
           </div>
+
+          {/* Coming Soon label */}
+          <span
+            className="text-[10px] tracking-[0.45em] uppercase"
+            style={{ fontFamily: "Inter, sans-serif", color: "#c8a96e" }}
+          >
+            Coming Soon
+          </span>
+          <motion.div
+            animate={{ scaleX: hovered ? 1 : 0.4, opacity: hovered ? 0.7 : 0.3 }}
+            transition={{ duration: 0.4 }}
+            className="h-px bg-gold origin-center"
+            style={{ width: 48 }}
+          />
         </div>
 
         {/* Info */}
@@ -144,10 +126,7 @@ function ProjectCard({ p, i }: { p: (typeof projects)[0]; i: number }) {
           >
             {p.title}
           </h3>
-          <p
-            className="text-xs text-muted leading-relaxed mb-4"
-            style={{ fontFamily: "Inter, sans-serif" }}
-          >
+          <p className="text-xs text-muted leading-relaxed mb-4" style={{ fontFamily: "Inter, sans-serif" }}>
             {p.desc}
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -170,64 +149,7 @@ function ProjectCard({ p, i }: { p: (typeof projects)[0]; i: number }) {
           className="absolute bottom-0 inset-x-0 h-px bg-gold/40"
         />
       </motion.article>
-
-      {/* Modal */}
-      <AnimatePresence>
-        {modal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8 bg-black/92 backdrop-blur-lg"
-            onClick={() => setModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 30 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full max-w-5xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-start justify-between mb-4 px-1">
-                <div>
-                  <h3
-                    className="text-4xl tracking-wider text-white"
-                    style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-                  >
-                    {p.title}
-                  </h3>
-                  <p
-                    className="text-xs text-gold/70 tracking-widest uppercase mt-0.5"
-                    style={{ fontFamily: "Inter, sans-serif" }}
-                  >
-                    {p.software.join(" · ")}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setModal(false)}
-                  className="text-muted hover:text-white transition-colors p-2 mt-1"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="aspect-video bg-black border border-white/10">
-                <ReactPlayer
-                  url={p.videoUrl}
-                  playing
-                  controls
-                  width="100%"
-                  height="100%"
-                  config={{ playerVars: { modestbranding: 1, rel: 0 } }}
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+    </SpotlightCard>
   );
 }
 
