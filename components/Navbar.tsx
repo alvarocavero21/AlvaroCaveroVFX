@@ -6,8 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const links = [
   { label: "Showreel", section: 1 },
   { label: "Work",     section: 2 },
-  { label: "About",    section: 3 },
-  { label: "Contact",  section: 4 },
+  { label: "Contact",  section: 3 },
 ];
 
 const goto = (section: number) =>

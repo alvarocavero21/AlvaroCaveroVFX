@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Player } from "@remotion/player";
 import MagneticWrapper from "./MagneticWrapper";
-import { TrackingIn } from "./ui/tracking-in";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 
 // ── Inline SVG icons ──────────────────────────────────────────────────────────
 
@@ -160,19 +159,6 @@ function HeroLogo({ sw }: { sw: HeroSW }) {
   );
 }
 
-const HeroTitle: React.FC = () => (
-  <TrackingIn
-    text="ALVARO CAVERO"
-    startTracking={0.8}
-    startBlur={16}
-    fontSize={96}
-    color="#ffffff"
-    background="transparent"
-    fontWeight={700}
-    speed={0.8}
-  />
-);
-
 export default function Hero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -259,33 +245,59 @@ export default function Hero() {
       <div className="relative z-10 text-center px-6 select-none">
 
         {/* ── Name group ── */}
-        <div>
-          <Player
-            component={HeroTitle}
-            durationInFrames={90}
-            fps={30}
-            compositionWidth={1200}
-            compositionHeight={200}
-            controls={false}
-            autoPlay
-            loop={false}
-            acknowledgeRemotionLicense
-            style={{ width: "100%", height: "auto", background: "transparent" }}
-          />
+        <div className="flex flex-col items-center">
+          <SpotlightCard
+            glowColor="blue"
+            customSize
+            className="w-full bg-transparent border-transparent"
+          >
+            <motion.h1
+              initial={{ opacity: 0, letterSpacing: "0.5em", filter: "blur(10px)", y: 20 }}
+              animate={{ opacity: 1, letterSpacing: "0.15em", filter: "blur(0px)", y: 0 }}
+              transition={{
+                duration: 1.2,
+                delay: 0.3,
+                ease: [0.25, 0.46, 0.45, 0.94],
+              }}
+              style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: "clamp(80px, 12vw, 160px)",
+                color: "#c8a96e",
+                textTransform: "uppercase",
+                textAlign: "center",
+                margin: "0 auto",
+                lineHeight: 0.9,
+              }}
+            >
+              ALVARO
+            </motion.h1>
+          </SpotlightCard>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.0, ease: [0.25, 0.46, 0.45, 0.94] }}
+            style={{
+              fontFamily: "Inter, sans-serif",
+              color: "#ffffff",
+              fontSize: "clamp(12px, 1.5vw, 18px)",
+              letterSpacing: "0.4em",
+              textTransform: "uppercase",
+              marginTop: "1rem",
+            }}
+          >
+            VFX ARTIST
+          </motion.p>
         </div>
 
         {/* ── Subtitle group ── */}
         <motion.div className="mt-6">
-          {/* Tagline */}
+          {/* Divider + tools */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 2.4 }}
+            transition={{ duration: 0.8, delay: 1.4 }}
             className="flex flex-col items-center gap-3"
           >
-            <p className="text-xs tracking-[0.55em] uppercase text-gold" style={{ fontFamily: "Inter, sans-serif" }}>
-              VFX Artist
-            </p>
             <div className="w-20 h-px bg-gold opacity-60" />
             <p className="text-xs tracking-[0.25em] text-white/50" style={{ fontFamily: "Inter, sans-serif" }}>
               Houdini&nbsp;·&nbsp;Karma&nbsp;·&nbsp;Nuke&nbsp;·&nbsp;Maya&nbsp;·&nbsp;Unreal Engine
@@ -296,7 +308,7 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 2.65 }}
+            transition={{ duration: 0.8, delay: 1.65 }}
             className="mt-10 flex items-center justify-center"
           >
             <MagneticWrapper>
@@ -317,7 +329,7 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.2, delay: 3.1 }}
+            transition={{ duration: 1.2, delay: 2.1 }}
             className="mt-10 flex flex-col items-center"
           >
             <div className="w-28 h-px mb-8" style={{ background: "rgba(255,255,255,0.07)" }} />
@@ -335,7 +347,7 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 3.2, duration: 1 }}
+        transition={{ delay: 2.2, duration: 1 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         onClick={() => window.dispatchEvent(new CustomEvent("snap-goto", { detail: 1 }))}
         style={{ cursor: "pointer" }}
