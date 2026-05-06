@@ -101,13 +101,13 @@ export default function Showreel() {
       {/* Top border line */}
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
 
-      <div className="max-w-[1400px] mx-auto px-8">
-        {/* Header */}
+      {/* Header — constrained to readable width */}
+      <div className="max-w-[1400px] mx-auto w-full px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
-          className="flex items-end justify-between mb-8"
+          className="flex items-end justify-between mb-3"
         >
           <div>
             <p
@@ -117,10 +117,10 @@ export default function Showreel() {
               Demo Reel
             </p>
             <h2
-              className="text-[clamp(2.5rem,6vw,5rem)] leading-none text-white tracking-wide"
+              className="text-[clamp(2rem,4.5vw,4rem)] leading-none text-white tracking-wide"
               style={{ fontFamily: "'Bebas Neue', sans-serif" }}
             >
-              SHOWREEL 2025
+              SHOWREEL
             </h2>
           </div>
           <div className="hidden md:block text-right">
@@ -138,20 +138,22 @@ export default function Showreel() {
           initial={{ scaleX: 0 }}
           animate={inView ? { scaleX: 1 } : {}}
           transition={{ duration: 0.9, ease: "easeOut" }}
-          className="origin-left h-px bg-gold/40 mb-8"
+          className="origin-left h-px bg-gold/40 mb-4"
         />
+      </div>
 
-        {/* Player */}
+      {/* Player — 90% section width, uncapped so it grows on wide screens */}
+      <div className="w-[90%] mx-auto">
         <SpotlightCard glowColor="blue" customSize className="w-full">
-        <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.9, delay: 0.15 }}
-          className="relative aspect-video bg-black overflow-hidden"
-          style={{ boxShadow: "0 40px 120px rgba(0,0,0,0.8)" }}
-        >
-          <ShowreelPlaceholder />
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.9, delay: 0.15 }}
+            className="relative aspect-video bg-black overflow-hidden"
+            style={{ boxShadow: "0 40px 120px rgba(0,0,0,0.8)" }}
+          >
+            <ShowreelPlaceholder />
+          </motion.div>
         </SpotlightCard>
       </div>
 
