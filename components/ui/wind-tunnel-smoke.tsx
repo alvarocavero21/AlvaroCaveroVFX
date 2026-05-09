@@ -120,8 +120,8 @@ export default function WindTunnelSmoke() {
       frame++;
       raf = requestAnimationFrame(tick);
 
-      // Locate the ALVARO title every frame — handles font load + resize
-      const titleEl = document.getElementById("alvaro-title");
+      // Locate the COQUE title every frame — handles font load + resize
+      const titleEl = document.getElementById("coque-title");
       const titleRect = titleEl ? titleEl.getBoundingClientRect() : null;
 
       const spawnCenterY = titleRect

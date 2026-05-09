@@ -217,7 +217,7 @@ export default function Hero() {
         <div className="flex flex-col items-center">
           <div style={{ opacity: section === 0 ? 1 : 0.08, transition: "opacity 0.7s ease" }}>
             <motion.h1
-              id="alvaro-title"
+              id="coque-title"
               initial={{ opacity: 0, letterSpacing: "0.5em", y: 20 }}
               animate={{ opacity: 1, letterSpacing: "0.15em", y: 0 }}
               transition={{ duration: 1.2, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -231,7 +231,7 @@ export default function Hero() {
                 lineHeight: 0.9,
               }}
             >
-              {"ALVARO".split("").map((ch, i) => (
+              {"COQUE".split("").map((ch, i) => (
                 <motion.span
                   key={i}
                   initial={{ y: "110%", rotate: 8, opacity: 0 }}
