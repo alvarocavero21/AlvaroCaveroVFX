@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useAnimationControls } from "framer-motion";
+import { motion } from "framer-motion";
 import MagneticWrapper from "./MagneticWrapper";
-import { SpotlightCard } from "@/components/ui/spotlight-card";
+import WebGLBackground from "@/components/ui/webgl-background";
+import { SplitText } from "@/components/ui/split-text";
+import { useActiveSection } from "@/components/ui/variable-text";
+import { useTheme } from "@/contexts/ThemeContext";
+import dynamic from "next/dynamic";
+const WindTunnelSmoke = dynamic(() => import("@/components/ui/wind-tunnel-smoke"), { ssr: false });
 
 // ── Inline SVG icons ──────────────────────────────────────────────────────────
 
@@ -66,7 +71,7 @@ const IconComfy = () => (
   </svg>
 );
 
-type HeroSW = { name: string; slug?: string; icon: React.ReactNode };
+type HeroSW = { name: string; slug?: string; icon: React.ReactNode; isLight?: boolean };
 
 const HERO_SOFTWARE: HeroSW[] = [
   { name: "Houdini", slug: "houdini",      icon: <IconHoudini /> },
@@ -76,7 +81,7 @@ const HERO_SOFTWARE: HeroSW[] = [
   { name: "ComfyUI", slug: undefined,      icon: <IconComfy /> },
 ];
 
-function HeroLogo({ sw }: { sw: HeroSW }) {
+function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
   const [failed, setFailed] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -117,7 +122,7 @@ function HeroLogo({ sw }: { sw: HeroSW }) {
         transform,
         transition,
         transformStyle: "preserve-3d",
-        willChange: "transform",
+        willChange: hovered ? "transform" : "auto",
         boxShadow: hovered ? "0 20px 40px rgba(200,169,110,0.4)" : "0 0 0 rgba(0,0,0,0)",
       }}
     >
@@ -149,7 +154,7 @@ function HeroLogo({ sw }: { sw: HeroSW }) {
         className="text-[8.5px] tracking-[0.3em] uppercase"
         style={{
           fontFamily: "Inter, sans-serif",
-          color: hovered ? "rgba(200,169,110,0.6)" : "rgba(255,255,255,0.20)",
+          color: hovered ? "var(--accent)" : isLight ? "rgba(26,26,26,0.40)" : "rgba(255,255,255,0.20)",
           transition: hovered ? "color 0.1s ease" : "color 0.4s ease",
         }}
       >
@@ -159,79 +164,32 @@ function HeroLogo({ sw }: { sw: HeroSW }) {
   );
 }
 
+// ── Per-letter text-shadow glow levels ────────────────────────────────────────
+function makeGlow(r: number, g: number, b: number) {
+  return {
+    full: `0 0 30px rgba(${r},${g},${b},0.8), 0 0 60px rgba(${r},${g},${b},0.4), 0 0 100px rgba(${r},${g},${b},0.2)`,
+    half: `0 0 30px rgba(${r},${g},${b},0.4), 0 0 60px rgba(${r},${g},${b},0.2), 0 0 100px rgba(${r},${g},${b},0.1)`,
+    low:  `0 0 20px rgba(${r},${g},${b},0.08), 0 0 40px rgba(${r},${g},${b},0.04)`,
+    idle: `0 0 20px rgba(${r},${g},${b},0.18), 0 0 40px rgba(${r},${g},${b},0.09)`,
+  };
+}
+
+function getLetterGlow(i: number, active: number | null, isLight: boolean): string {
+  const rgb = isLight ? [184, 148, 58] : [200, 169, 110];
+  const g = makeGlow(rgb[0], rgb[1], rgb[2]);
+  if (active === null) return g.idle;
+  const d = Math.abs(i - active);
+  if (d === 0) return g.full;
+  if (d === 1) return g.half;
+  return g.low;
+}
+
 export default function Hero() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showHint, setShowHint] = useState(true);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    type Particle = {
-      x: number; y: number;
-      vx: number; vy: number;
-      size: number; alpha: number;
-      life: number; maxLife: number;
-    };
-
-    const particles: Particle[] = [];
-    const count = 120;
-
-    const make = (): Particle => ({
-      x: Math.random() * canvas.width,
-      y: canvas.height + 20,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: -(Math.random() * 0.6 + 0.2),
-      size: Math.random() * 80 + 30,
-      alpha: Math.random() * 0.06 + 0.02,
-      life: 0,
-      maxLife: Math.random() * 400 + 300,
-    });
-
-    for (let i = 0; i < count; i++) {
-      const p = make();
-      p.life = Math.floor(Math.random() * p.maxLife);
-      p.y = Math.random() * canvas.height;
-      particles.push(p);
-    }
-
-    let raf: number;
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.life++;
-        p.x += p.vx;
-        p.y += p.vy;
-        const t = p.life / p.maxLife;
-        const a = t < 0.2 ? (t / 0.2) * p.alpha : t > 0.7 ? ((1 - t) / 0.3) * p.alpha : p.alpha;
-        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-        grad.addColorStop(0, `rgba(200,169,110,${a * 0.4})`);
-        grad.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-        if (p.life >= p.maxLife) particles[i] = make();
-      }
-      raf = requestAnimationFrame(draw);
-    };
-    draw();
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const section = useActiveSection();
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
   // Hide scroll hint once user navigates away (never bring it back — it's a first-visit cue)
   useEffect(() => {
@@ -243,12 +201,13 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden bg-bg">
-      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
+    <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
+      <WebGLBackground />
+      <WindTunnelSmoke />
 
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.04]">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="absolute top-0 bottom-0 w-px bg-white" style={{ left: `${(i + 1) * (100 / 7)}%` }} />
+          <div key={i} className="absolute top-0 bottom-0 w-px" style={{ left: `${(i + 1) * (100 / 7)}%`, background: "var(--text-primary)" }} />
         ))}
       </div>
 
@@ -256,19 +215,16 @@ export default function Hero() {
 
         {/* ── Name group ── */}
         <div className="flex flex-col items-center">
-          <SpotlightCard
-            glowColor="blue"
-            customSize
-            className="w-full bg-transparent border-transparent"
-          >
+          <div style={{ opacity: section === 0 ? 1 : 0.08, transition: "opacity 0.7s ease" }}>
             <motion.h1
-              initial={{ opacity: 0, letterSpacing: "0.5em", filter: "blur(10px)", y: 20 }}
-              animate={{ opacity: 1, letterSpacing: "0.15em", filter: "blur(0px)", y: 0 }}
+              id="alvaro-title"
+              initial={{ opacity: 0, letterSpacing: "0.5em", y: 20 }}
+              animate={{ opacity: 1, letterSpacing: "0.15em", y: 0 }}
               transition={{ duration: 1.2, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
                 fontSize: "clamp(80px, 12vw, 160px)",
-                color: "#c8a96e",
+                color: "var(--accent)",
                 textTransform: "uppercase",
                 textAlign: "center",
                 margin: "0 auto",
@@ -278,29 +234,48 @@ export default function Hero() {
               {"ALVARO".split("").map((ch, i) => (
                 <motion.span
                   key={i}
-                  whileHover={{ y: -10, color: "#ffffff", transition: { type: "spring", stiffness: 500, damping: 18 } }}
-                  style={{ display: "inline-block", cursor: "default" }}
+                  initial={{ y: "110%", rotate: 8, opacity: 0 }}
+                  animate={{ y: 0, rotate: 0, opacity: 1 }}
+                  transition={{
+                    duration: 0.8,
+                    delay: 0.3 + i * 0.06,
+                    ease: [0.23, 1, 0.32, 1],
+                  }}
+                  onHoverStart={() => setActiveIdx(i)}
+                  onHoverEnd={() => setActiveIdx(null)}
+                  whileHover={{ y: -10, color: isLight ? "#1a1a1a" : "#ffffff", transition: { type: "spring", stiffness: 500, damping: 18 } }}
+                  style={{
+                    display: "inline-block",
+                    cursor: "default",
+                    textShadow: getLetterGlow(i, activeIdx, isLight),
+                    transition: "text-shadow 0.2s ease",
+                  }}
                 >
                   {ch}
                 </motion.span>
               ))}
             </motion.h1>
-          </SpotlightCard>
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.0, ease: [0.25, 0.46, 0.45, 0.94] }}
+          </div>
+          <p
             style={{
               fontFamily: "Inter, sans-serif",
-              color: "#ffffff",
+              color: "var(--text-primary)",
               fontSize: "clamp(12px, 1.5vw, 18px)",
               letterSpacing: "0.4em",
               textTransform: "uppercase",
               marginTop: "1rem",
+              fontVariationSettings: "'wght' 300",
+              animation: "weight-pulse 3s ease-in-out 1.8s infinite",
             }}
           >
-            VFX ARTIST
-          </motion.p>
+            <SplitText
+              text="VFX ARTIST"
+              stagger={0.03}
+              charDuration={0.4}
+              delay={1000}
+              triggerOnMount
+            />
+          </p>
         </div>
 
         {/* ── Subtitle group ── */}
@@ -346,10 +321,10 @@ export default function Hero() {
             transition={{ duration: 1.2, delay: 2.1 }}
             className="mt-10 flex flex-col items-center"
           >
-            <div className="w-28 h-px mb-8" style={{ background: "rgba(255,255,255,0.07)" }} />
+            <div className="w-28 h-px mb-8" style={{ background: "var(--border)" }} />
             <div className="flex items-start justify-center gap-8">
               {HERO_SOFTWARE.map((sw) => (
-                <HeroLogo key={sw.name} sw={sw} />
+                <HeroLogo key={sw.name} sw={sw} isLight={isLight} />
               ))}
             </div>
           </motion.div>

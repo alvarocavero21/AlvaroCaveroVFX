@@ -1,9 +1,12 @@
+import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import Showreel from "@/components/Showreel";
-import Projects from "@/components/Projects";
-import Contact from "@/components/Contact";
 import SnapScrollContainer from "@/components/SnapScrollContainer";
+
+// Code-split each section into its own async chunk
+const Hero     = dynamic(() => import("@/components/Hero"));
+const Showreel = dynamic(() => import("@/components/Showreel"));
+const Projects = dynamic(() => import("@/components/Projects"));
+const Contact  = dynamic(() => import("@/components/Contact"));
 
 export default function Home() {
   return (

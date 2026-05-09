@@ -26,19 +26,20 @@ export default function CustomCursor() {
 
     type State = "default" | "link" | "button";
     const apply = (s: State) => {
+      const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent-rgb").trim() || "200,169,110";
       if (s === "link") {
         dot.style.opacity = "0";
         ringEl.style.width  = "52px";
         ringEl.style.height = "52px";
-        ringEl.style.borderColor = "rgba(200,169,110,0.9)";
-        ringEl.style.backgroundColor = "rgba(200,169,110,0.06)";
+        ringEl.style.borderColor = `rgba(${accent},0.9)`;
+        ringEl.style.backgroundColor = `rgba(${accent},0.06)`;
       } else if (s === "button") {
         dot.style.opacity = "1";
         dot.style.width  = "4px";
         dot.style.height = "4px";
         ringEl.style.width  = "22px";
         ringEl.style.height = "22px";
-        ringEl.style.borderColor = "rgba(200,169,110,0.7)";
+        ringEl.style.borderColor = `rgba(${accent},0.7)`;
         ringEl.style.backgroundColor = "transparent";
       } else {
         dot.style.opacity = "1";
@@ -46,7 +47,7 @@ export default function CustomCursor() {
         dot.style.height = "8px";
         ringEl.style.width  = "34px";
         ringEl.style.height = "34px";
-        ringEl.style.borderColor = "rgba(200,169,110,0.45)";
+        ringEl.style.borderColor = `rgba(${accent},0.45)`;
         ringEl.style.backgroundColor = "transparent";
       }
     };
@@ -112,7 +113,7 @@ export default function CustomCursor() {
           width: 8,
           height: 8,
           borderRadius: "50%",
-          backgroundColor: "#c8a96e",
+          backgroundColor: "var(--accent)",
           transform: "translate(-50%,-50%)",
           transition: "width 0.2s ease, height 0.2s ease, opacity 0.2s ease, transform 0.18s cubic-bezier(0.23,1,0.32,1)",
           left: -200,
@@ -128,7 +129,7 @@ export default function CustomCursor() {
           width: 34,
           height: 34,
           borderRadius: "50%",
-          border: "1px solid rgba(200,169,110,0.45)",
+          border: "1px solid var(--border-gold-faint)",
           transform: "translate(-50%,-50%)",
           transition: [
             "width 0.35s cubic-bezier(0.23,1,0.32,1)",

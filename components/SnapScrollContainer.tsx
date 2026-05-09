@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, Children } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const DURATION = 800;
 const EASING   = "cubic-bezier(0.76, 0, 0.24, 1)";
@@ -10,11 +11,13 @@ const SECTION_NAMES = ["Hero", "Showreel", "Work", "Contact"];
 function NavDot({
   index,
   isActive,
+  isLight,
   name,
   onClick,
 }: {
   index: number;
   isActive: boolean;
+  isLight: boolean;
   name: string;
   onClick: () => void;
 }) {
@@ -31,12 +34,20 @@ function NavDot({
           letterSpacing: "0.32em",
           textTransform: "uppercase",
           fontFamily: "Inter, sans-serif",
-          color: isActive ? "#c8a96e" : "rgba(255,255,255,0.45)",
+          color: isActive
+            ? "var(--accent)"
+            : isLight ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.45)",
           whiteSpace: "nowrap",
           pointerEvents: "none",
           opacity: hovered ? 1 : 0,
           transform: hovered ? "translateX(0)" : "translateX(8px)",
-          transition: "opacity 0.25s ease, transform 0.25s ease",
+          fontVariationSettings: isActive
+            ? "'wght' 700"
+            : hovered
+            ? "'wght' 500"
+            : "'wght' 300",
+          transition:
+            "opacity 0.25s ease, transform 0.25s ease, font-variation-settings 0.3s ease",
         }}
       >
         {name}
@@ -52,16 +63,16 @@ function NavDot({
           height: isActive ? 10 : hovered ? 8 : 6,
           borderRadius: "50%",
           background: isActive
-            ? "#c8a96e"
+            ? "var(--accent)"
             : hovered
-            ? "rgba(200,169,110,0.55)"
-            : "rgba(255,255,255,0.28)",
+            ? "rgba(var(--accent-rgb), 0.55)"
+            : isLight ? "rgba(26,26,26,0.22)" : "rgba(255,255,255,0.28)",
           border: "none",
           padding: 0,
           outline: "none",
           transition: "all 0.35s cubic-bezier(0.23,1,0.32,1)",
           animation: isActive ? "dot-pulse 2.2s ease-in-out infinite" : "none",
-          boxShadow: isActive ? "0 0 10px rgba(200,169,110,0.5)" : "none",
+          boxShadow: isActive ? "0 0 10px rgba(var(--accent-rgb),0.5)" : "none",
         }}
       />
     </div>
@@ -71,6 +82,8 @@ function NavDot({
 // ────────────────────────────────────────────────────────────────────────────
 export default function SnapScrollContainer({ children }: { children: React.ReactNode }) {
   const [current, setCurrent]   = useState(0);
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const transitioning           = useRef(false);
   const currentRef              = useRef(0);
   const touchStartY             = useRef(0);
@@ -86,17 +99,6 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
     transitioning.current = true;
     currentRef.current    = next;
     setCurrent(next);
-
-    // Brief blur on the whole stack during snap
-    const el = containerRef.current;
-    if (el) {
-      el.style.filter = "blur(1.5px)";
-      el.style.transition = "filter 0.12s ease";
-      setTimeout(() => {
-        el.style.filter = "none";
-        el.style.transition = "filter 0.2s ease";
-      }, 180);
-    }
 
     // Broadcast section change (Navbar + Hero listen to this)
     dispatchingRef.current = true;
@@ -174,7 +176,9 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
                 ? "translateY(100%) scale(1.02)"
                 : "translateY(0) scale(1)",
               transition: `transform ${DURATION}ms ${EASING}`,
-              willChange: "transform",
+              // willChange only on sections adjacent to the snap point — not all 4 permanently
+              willChange: Math.abs(i - current) <= 1 ? "transform" : "auto",
+              contain: "layout style",
             }}
           >
             {section}
@@ -202,6 +206,7 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
             key={i}
             index={i}
             isActive={i === current}
+            isLight={isLight}
             name={SECTION_NAMES[i] ?? `Section ${i + 1}`}
             onClick={() => { transitioning.current = false; goTo(i); }}
           />

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import CustomCursor from "@/components/CustomCursor";
+import Providers from "@/components/Providers";
+import ThemeToggle from "@/components/ui/theme-toggle";
 
 export const metadata: Metadata = {
   title: "Alvaro Cavero | VFX Artist",
@@ -17,10 +18,34 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Non-blocking font load: <link> beats CSS @import for render-blocking */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        />
+      </head>
       <body className="grain bg-bg">
-        <CustomCursor />
-        {children}
+        <Providers>
+          {/* Theme toggle — top-right, same height as Navbar */}
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 24,
+              zIndex: 99999,
+              display: "flex",
+              alignItems: "center",
+              height: 74,
+            }}
+          >
+            <ThemeToggle />
+          </div>
+          {children}
+        </Providers>
       </body>
     </html>
   );

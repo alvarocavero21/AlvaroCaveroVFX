@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { BGPattern } from "@/components/ui/bg-pattern";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { SplitScramble } from "@/components/ui/split-text";
 
 function ShowreelPlaceholder() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -33,8 +34,25 @@ function ShowreelPlaceholder() {
       a: Math.random() * 0.4 + 0.1,
     }));
 
+    // Pause when tab is hidden or section is not active
+    let paused = false;
+    let isShowreelSection = false;
+
+    const updatePause = () => { paused = document.hidden || !isShowreelSection; };
+    const onVisibility = () => updatePause();
+    document.addEventListener("visibilitychange", onVisibility);
+
+    const onSection = (e: Event) => {
+      isShowreelSection = (e as CustomEvent<number>).detail === 1;
+      updatePause();
+    };
+    window.addEventListener("snap-section", onSection);
+
     let raf: number;
     const draw = () => {
+      raf = requestAnimationFrame(draw);
+      if (paused) return;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (const d of dots) {
         d.x += d.vx;
@@ -48,11 +66,15 @@ function ShowreelPlaceholder() {
         ctx.fillStyle = `rgba(200,169,110,${d.a})`;
         ctx.fill();
       }
-      raf = requestAnimationFrame(draw);
     };
     draw();
 
-    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("snap-section", onSection);
+    };
   }, []);
 
   return (
@@ -71,7 +93,7 @@ function ShowreelPlaceholder() {
           SHOWREEL
         </p>
         <p
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "clamp(10px,1.2vw,14px)", color: "rgba(255,255,255,0.55)", letterSpacing: "0.5em", textTransform: "uppercase", animation: "cs-pulse 2.4s ease-in-out infinite" }}
+          style={{ fontFamily: "Inter, sans-serif", fontSize: "clamp(10px,1.2vw,14px)", color: "var(--text-muted)", letterSpacing: "0.5em", textTransform: "uppercase", animation: "cs-pulse 2.4s ease-in-out infinite" }}
         >
           Coming Soon
         </p>
@@ -90,7 +112,7 @@ export default function Showreel() {
   const { ref, inView } = useInView({ threshold: 0.25, triggerOnce: false });
 
   return (
-    <section id="showreel" ref={ref} className="relative bg-[#080808] h-screen overflow-hidden flex flex-col justify-center">
+    <section id="showreel" ref={ref} className="relative h-screen overflow-hidden flex flex-col pt-20 pb-8" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
       <BGPattern
         variant="grid"
         mask="fade-edges"
@@ -120,7 +142,7 @@ export default function Showreel() {
               className="text-[clamp(2rem,4.5vw,4rem)] leading-none text-white tracking-wide"
               style={{ fontFamily: "'Bebas Neue', sans-serif" }}
             >
-              SHOWREEL
+              <SplitScramble text="SHOWREEL" stagger={0.05} />
             </h2>
           </div>
           <div className="hidden md:block text-right">
@@ -142,14 +164,14 @@ export default function Showreel() {
         />
       </div>
 
-      {/* Player — 90% section width, uncapped so it grows on wide screens */}
-      <div className="w-[90%] mx-auto">
-        <SpotlightCard glowColor="blue" customSize className="w-full">
+      {/* Player — fills remaining height so the title above is never squeezed off-screen */}
+      <div className="w-[90%] mx-auto flex-1 min-h-0">
+        <SpotlightCard glowColor="blue" customSize className="w-full h-full">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.9, delay: 0.15 }}
-            className="relative aspect-video bg-black overflow-hidden"
+            className="relative h-full bg-black overflow-hidden"
             style={{ boxShadow: "0 40px 120px rgba(0,0,0,0.8)" }}
           >
             <ShowreelPlaceholder />

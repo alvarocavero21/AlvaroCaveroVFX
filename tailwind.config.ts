@@ -9,10 +9,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "#080808",
-        gold: "#c8a96e",
-        "gold-dim": "#a8893e",
-        muted: "#555555",
+        bg:        "var(--bg-primary)",
+        "bg-2":    "var(--bg-secondary)",
+        "bg-3":    "var(--bg-tertiary)",
+        gold:      "rgb(var(--accent-rgb))",
+        "gold-dim": "rgb(var(--accent-rgb))",
+        muted:     "var(--text-muted)",
+        primary:   "var(--text-primary)",
       },
       fontFamily: {
         bebas: ["'Bebas Neue'", "sans-serif"],

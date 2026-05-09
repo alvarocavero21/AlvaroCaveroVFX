@@ -9,17 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@remotion/player": "^4.0.457",
+    "@types/three": "^0.184.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.18.2",
-    "lenis": "^1.3.23",
+    "lucide-react": "^1.14.0",
     "next": "^16.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-intersection-observer": "^9.16.0",
-    "react-player": "^2.16.0",
-    "remotion": "^4.0.457",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@types/node": "^20",

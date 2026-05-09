@@ -35,14 +35,15 @@ export default function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, delay: 2.2, ease: "easeOut" }}
       className={`fixed top-0 inset-x-0 z-[99998] transition-all duration-500 ${
-        scrolled ? "bg-[#080808]/90 backdrop-blur-md border-b border-white/5" : ""
+        scrolled ? "backdrop-blur-md border-b border-white/5" : ""
       }`}
+      style={scrolled ? { background: "var(--bg-nav)" } : {}}
     >
       <div className="max-w-[1400px] mx-auto px-8 py-5 flex items-center justify-between">
         <button
           onClick={() => goto(0)}
-          style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-          className="text-2xl tracking-[0.2em] text-white hover:text-gold transition-colors duration-300"
+          style={{ fontFamily: "'Bebas Neue', sans-serif", color: "var(--text-primary)" }}
+          className="text-2xl tracking-[0.2em] hover:text-gold transition-colors duration-300"
         >
           AC<span className="text-gold">VFX</span>
         </button>
@@ -90,7 +91,8 @@ export default function Navbar() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden overflow-hidden bg-[#080808]/95 border-t border-white/5"
+            className="md:hidden overflow-hidden border-t border-white/5"
+            style={{ background: "var(--bg-nav-mobile)" }}
           >
             <div className="px-8 py-6 flex flex-col gap-5">
               {links.map((l) => (

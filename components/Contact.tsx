@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent, useRef, useEffect } from "react";
+import { SplitScramble } from "@/components/ui/split-text";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
@@ -103,7 +104,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" ref={ref} className="relative h-screen bg-[#080808] overflow-hidden flex flex-col justify-center">
+    <section id="contact" ref={ref} className="relative h-screen overflow-hidden flex flex-col pt-20 pb-8" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
 
       {/* Large background text */}
@@ -137,9 +138,9 @@ export default function Contact() {
             className="text-[clamp(3rem,8vw,7rem)] leading-none text-white tracking-wide mb-4"
             style={{ fontFamily: "'Bebas Neue', sans-serif" }}
           >
-            LET&apos;S WORK
+            <SplitScramble text="LET'S WORK" stagger={0.05} />
             <br />
-            TOGETHER
+            <SplitScramble text="TOGETHER" stagger={0.05} />
           </h2>
           <div className="w-20 h-px bg-gold mx-auto" />
         </motion.div>
@@ -154,7 +155,7 @@ export default function Contact() {
           >
             <p
               className="text-xs tracking-[0.35em] uppercase text-muted mb-8"
-              style={{ fontFamily: "Inter, sans-serif" }}
+              style={{ fontFamily: "Inter, sans-serif", fontVariationSettings: inView ? "'wght' 500" : "'wght' 300", transition: "font-variation-settings 0.8s ease" }}
             >
               Available for freelance & full-time
             </p>
@@ -175,7 +176,7 @@ export default function Contact() {
                     <p className="text-[9px] tracking-widest uppercase text-muted mb-0.5" style={{ fontFamily: "Inter, sans-serif" }}>
                       {s.label}
                     </p>
-                    <p className="text-sm text-white/60 group-hover:text-white transition-colors duration-300" style={{ fontFamily: "Inter, sans-serif" }}>
+                    <p className="text-sm text-white/60 group-hover:text-white transition-colors duration-300" style={{ fontFamily: "Inter, sans-serif", fontVariationSettings: inView ? "'wght' 450" : "'wght' 300", transition: "font-variation-settings 0.8s ease, color 0.3s ease" }}>
                       {s.value}
                     </p>
                   </div>

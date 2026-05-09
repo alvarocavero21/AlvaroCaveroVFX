@@ -1,14 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap');
+/* Fonts are loaded via <link> in layout.tsx — CSS @import blocks render, <link> does not */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme: dark (default) ────────────────────────────────────────────────── */
 :root {
-  --bg: #080808;
-  --gold: #c8a96e;
+  --bg-primary:        #080808;
+  --bg-secondary:      #111111;
+  --bg-tertiary:       #0a0a0a;
+  --bg-nav:            rgba(8, 8, 8, 0.90);
+  --bg-nav-mobile:     rgba(8, 8, 8, 0.95);
+  --text-primary:      #ffffff;
+  --text-muted:        #555555;
+  --accent:            #c8a96e;
+  --accent-rgb:        200, 169, 110;
+  --border:            rgba(255, 255, 255, 0.06);
+  --border-gold-faint: rgba(200, 169, 110, 0.20);
+  --grain-opacity:     0.6;
+  --ease-out:          cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* legacy aliases for backward compat */
+  --bg:    #080808;
+  --gold:  #c8a96e;
   --white: #ffffff;
   --muted: #555555;
+}
+
+/* ── Theme: light ─────────────────────────────────────────────────────────── */
+html.light {
+  --bg-primary:        #d4d0c8;
+  --bg-secondary:      #ccc8c0;
+  --bg-tertiary:       #c8c4bc;
+  --bg-card:           #d8d4cc;
+  --bg-contact:        #c4c0b8;
+  --bg-nav:            rgba(212, 208, 200, 0.93);
+  --bg-nav-mobile:     rgba(212, 208, 200, 0.97);
+  --text-primary:      #1a1a1a;
+  --text-muted:        #5a5652;
+  --accent:            #b8943a;
+  --accent-rgb:        184, 148, 58;
+  --border:            rgba(0, 0, 0, 0.10);
+  --border-gold-faint: rgba(184, 148, 58, 0.28);
+  --grain-opacity:     0.18;
+
+  --bg:    #d4d0c8;
+  --gold:  #b8943a;
+  --white: #1a1a1a;
+  --muted: #5a5652;
 }
 
 * {
@@ -18,18 +57,21 @@
 }
 
 html {
-  background: #080808;
+  background: var(--bg-primary);
   overflow: hidden;
   height: 100%;
+  scroll-behavior: auto;
+  transition: background-color 0.4s ease;
 }
 
 body {
-  background: #080808;
-  color: #ffffff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   overflow: hidden;
   height: 100%;
   cursor: none;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 /* Hide default cursor everywhere */
@@ -52,7 +94,8 @@ body {
   pointer-events: none;
   z-index: 9998;
   animation: grain-anim 0.4s steps(1) infinite;
-  opacity: 0.6;
+  opacity: var(--grain-opacity);
+  transition: opacity 0.4s ease;
 }
 
 @keyframes grain-anim {
@@ -72,12 +115,9 @@ body {
 .font-bebas { font-family: 'Bebas Neue', sans-serif; }
 
 /* Gold text gradient */
-.text-gold { color: #c8a96e; }
-.border-gold { border-color: #c8a96e; }
-.bg-gold { background-color: #c8a96e; }
-
-/* Snap scroll — prevent any stray scroll-behavior */
-html { scroll-behavior: auto; }
+.text-gold   { color: var(--accent); }
+.border-gold { border-color: var(--accent); }
+.bg-gold     { background-color: var(--accent); }
 
 /* Horizontal scroll tags — hide scrollbar */
 .tags-scroll::-webkit-scrollbar { display: none; }
@@ -87,9 +127,6 @@ html { scroll-behavior: auto; }
 section { position: relative; }
 
 /* ── Micro-interaction utilities ────────────────────────────────────────────── */
-
-/* Consistent easing token */
-:root { --ease-out: cubic-bezier(0.23, 1, 0.32, 1); }
 
 /* Button press scale */
 .btn-press { transition: transform 0.3s cubic-bezier(0.23,1,0.32,1); }
@@ -116,8 +153,8 @@ section { position: relative; }
 
 /* Active nav dot pulse */
 @keyframes dot-pulse {
-  0%, 100% { box-shadow: 0 0 6px rgba(200,169,110,0.55); }
-  50%       { box-shadow: 0 0 16px rgba(200,169,110,0.28), 0 0 0 4px rgba(200,169,110,0.1); }
+  0%, 100% { box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.55); }
+  50%       { box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.28), 0 0 0 4px rgba(var(--accent-rgb), 0.1); }
 }
 
 /* Coming Soon dashed-border spin */
@@ -143,10 +180,16 @@ section { position: relative; }
   position: absolute;
   bottom: -2px; left: 0;
   width: 0; height: 1px;
-  background: #c8a96e;
+  background: var(--accent);
   transition: width 0.35s cubic-bezier(0.23,1,0.32,1);
 }
 .link-underline:hover::after { width: 100%; }
+
+/* Variable font weight pulse — used on VFX ARTIST subtitle */
+@keyframes weight-pulse {
+  0%, 100% { font-variation-settings: 'wght' 300; }
+  50%       { font-variation-settings: 'wght' 600; }
+}
 
 /* YouTube background player — fill container, no controls */
 .yt-bg-player {
@@ -160,4 +203,65 @@ section { position: relative; }
   transform: translate(-50%, -50%);
   pointer-events: none;
   border: none;
+}
+
+/* ── Light mode: text-white Tailwind class overrides ────────────────────────── */
+html.light h1,
+html.light h2,
+html.light h3 { color: var(--text-primary); }
+
+html.light .text-white        { color: var(--text-primary) !important; }
+html.light .text-white\/60    { color: rgba(26,26,26,0.65) !important; }
+html.light .text-white\/50    { color: rgba(26,26,26,0.55) !important; }
+html.light .text-white\/40    { color: rgba(26,26,26,0.45) !important; }
+html.light .text-white\/30    { color: rgba(26,26,26,0.35) !important; }
+html.light .text-white\/20    { color: rgba(26,26,26,0.25) !important; }
+html.light .text-white\/15    { color: rgba(26,26,26,0.20) !important; }
+html.light .text-white\/10    { color: rgba(26,26,26,0.15) !important; }
+
+html.light .hover\:text-white:hover                    { color: var(--text-primary) !important; }
+html.light .group:hover .group-hover\:text-white       { color: var(--text-primary) !important; }
+html.light .text-muted                                  { color: var(--text-muted)   !important; }
+html.light .bg-black                                    { background-color: var(--bg-secondary)  !important; }
+html.light .border-white\/5                             { border-color: var(--border) !important; }
+html.light .border-white\/\[0\.06\]                    { border-color: var(--border) !important; }
+html.light .border-white\/10                            { border-color: rgba(0,0,0,0.12) !important; }
+html.light .border-white\/8                             { border-color: rgba(0,0,0,0.10) !important; }
+html.light .hover\:border-gold\/30:hover               { border-color: rgba(184,148,58,0.30) !important; }
+html.light .hover\:text-white\/60:hover                { color: rgba(26,26,26,0.70) !important; }
+
+/* Light mode: section backgrounds */
+html.light section          { background-color: var(--bg-primary); }
+html.light .bg-\[\#080808\] { background-color: var(--bg-primary)   !important; }
+html.light .bg-\[\#111111\] { background-color: var(--bg-secondary) !important; }
+html.light .bg-\[\#0a0a0a\] { background-color: var(--bg-tertiary)  !important; }
+html.light .bg-\[\#040404\] { background-color: var(--bg-secondary) !important; }
+
+/* Light mode: per-section gradient backgrounds */
+html.light #hero     { background: linear-gradient(135deg, #d4d0c8 0%, #c8c4bc 50%, #ccc8c0 100%) !important; }
+html.light #showreel { background: linear-gradient(180deg, #ccc8c0 0%, #c4c0b8 100%) !important; }
+html.light #work     { background: linear-gradient(180deg, #c8c4bc 0%, #ccc8c0 100%) !important; }
+html.light #contact  { background: linear-gradient(180deg, #c4c0b8 0%, #beb8b0 100%) !important; }
+
+/* Light mode: form inputs */
+html.light input[type="text"],
+html.light input[type="email"],
+html.light textarea {
+  background-color: rgba(0,0,0,0.04) !important;
+  border-color:     rgba(0,0,0,0.14) !important;
+  color:            var(--text-primary) !important;
+}
+html.light input::placeholder,
+html.light textarea::placeholder { color: rgba(26,26,26,0.35) !important; }
+
+/* Light mode: project cards need shadow to distinguish from background */
+html.light article { box-shadow: 0 2px 20px rgba(0,0,0,0.08); }
+
+/* ── Section paint containment — prevents sections from affecting each other's paint ── */
+#hero,
+#showreel,
+#work,
+#contact {
+  contain: layout style;
+  touch-action: pan-y;
 }

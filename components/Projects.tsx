@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { SplitScramble } from "@/components/ui/split-text";
 
 const CATEGORIES = ["ALL", "COMPOSITING", "PYRO & FIRE", "WATER & FLUIDS", "DESTRUCTION", "CHARACTER FX", "ENVIRONMENTS"] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -98,13 +99,14 @@ function YouTubeCard({ p, i }: { p: YouTubeProject; i: number }) {
           initial={{ opacity: 0, scale: 0.95, y: 24 }}
           animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
           transition={{ duration: 0.65, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className="group relative overflow-hidden bg-[#111111] border border-gold/20 hover:border-gold/50 transition-all duration-500 cursor-pointer"
+          className="group relative overflow-hidden border border-gold/20 hover:border-gold/50 transition-all duration-500 cursor-pointer"
+          style={{ backgroundColor: "var(--bg-secondary)" }}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           onClick={() => setModal(true)}
         >
           {/* Thumbnail area */}
-          <div className="relative aspect-video overflow-hidden bg-[#0a0a0a]">
+          <div className="relative aspect-video overflow-hidden" style={{ backgroundColor: "var(--bg-tertiary)" }}>
             {/* Static thumbnail */}
             <img
               src={thumb}
@@ -162,7 +164,7 @@ function YouTubeCard({ p, i }: { p: YouTubeProject; i: number }) {
             >
               {p.title}
             </h3>
-            <p className="text-xs text-muted leading-relaxed mb-4" style={{ fontFamily: "Inter, sans-serif" }}>
+            <p className="text-xs text-muted leading-relaxed mb-4" style={{ fontFamily: "Inter, sans-serif", fontVariationSettings: hovered ? "'wght' 500" : "'wght' 300", transition: "font-variation-settings 0.4s ease" }}>
               {p.desc}
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -253,7 +255,8 @@ function ProjectCard({ p, i }: { p: PlaceholderProject; i: number }) {
         initial={{ opacity: 0, scale: 0.95, y: 24 }}
         animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
         transition={{ duration: 0.65, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-        className="group relative overflow-hidden bg-[#111111] border border-white/[0.06] hover:border-gold/30 transition-all duration-500"
+        className="group relative overflow-hidden border border-white/[0.06] hover:border-gold/30 transition-all duration-500"
+        style={{ backgroundColor: "var(--bg-secondary)" }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
@@ -302,7 +305,7 @@ function ProjectCard({ p, i }: { p: PlaceholderProject; i: number }) {
           >
             {p.title}
           </h3>
-          <p className="text-xs text-muted leading-relaxed mb-4" style={{ fontFamily: "Inter, sans-serif" }}>
+          <p className="text-xs text-muted leading-relaxed mb-4" style={{ fontFamily: "Inter, sans-serif", fontVariationSettings: hovered ? "'wght' 500" : "'wght' 300", transition: "font-variation-settings 0.4s ease" }}>
             {p.desc}
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -365,14 +368,15 @@ function EnergyStreamsCanvas() {
 
     const rand = (a: number, b: number) => Math.random() * (b - a) + a;
 
+    // Reduced to 7 particles per stream × 7 streams ≈ 60 total (was ~120)
     const STREAMS: StreamDef[] = [
-      { yFrac: 0.12, amplitude: 38, frequency: 1.4, speed: 0.00110, color: "200,169,110", count: 18 },
-      { yFrac: 0.25, amplitude: 55, frequency: 1.1, speed: 0.00085, color: "255,255,255", count: 16 },
-      { yFrac: 0.38, amplitude: 42, frequency: 1.7, speed: 0.00130, color: "180,100,50",  count: 17 },
-      { yFrac: 0.50, amplitude: 60, frequency: 0.9, speed: 0.00070, color: "200,169,110", count: 20 },
-      { yFrac: 0.62, amplitude: 35, frequency: 1.5, speed: 0.00100, color: "255,255,255", count: 15 },
-      { yFrac: 0.74, amplitude: 50, frequency: 1.2, speed: 0.00095, color: "180,100,50",  count: 18 },
-      { yFrac: 0.86, amplitude: 44, frequency: 1.6, speed: 0.00120, color: "200,169,110", count: 16 },
+      { yFrac: 0.12, amplitude: 38, frequency: 1.4, speed: 0.00110, color: "200,169,110", count: 8 },
+      { yFrac: 0.25, amplitude: 55, frequency: 1.1, speed: 0.00085, color: "255,255,255", count: 8 },
+      { yFrac: 0.38, amplitude: 42, frequency: 1.7, speed: 0.00130, color: "180,100,50",  count: 8 },
+      { yFrac: 0.50, amplitude: 60, frequency: 0.9, speed: 0.00070, color: "200,169,110", count: 9 },
+      { yFrac: 0.62, amplitude: 35, frequency: 1.5, speed: 0.00100, color: "255,255,255", count: 8 },
+      { yFrac: 0.74, amplitude: 50, frequency: 1.2, speed: 0.00095, color: "180,100,50",  count: 8 },
+      { yFrac: 0.86, amplitude: 44, frequency: 1.6, speed: 0.00120, color: "200,169,110", count: 8 },
     ];
 
     const phaseOffsets = STREAMS.map(() => rand(0, Math.PI * 2));
@@ -396,10 +400,30 @@ function EnergyStreamsCanvas() {
       return [x, y];
     };
 
+    // Pause tracking — off when tab hidden or section not visible
+    let paused = false;
+    let isWorkSection = false;
+
+    const updatePause = () => {
+      paused = document.hidden || !isWorkSection;
+    };
+
+    const onVisibility = () => updatePause();
+    document.addEventListener("visibilitychange", onVisibility);
+
+    const onSection = (e: Event) => {
+      isWorkSection = (e as CustomEvent<number>).detail === 2;
+      updatePause();
+    };
+    window.addEventListener("snap-section", onSection);
+
     let time = 0;
     let raf: number;
 
     const draw = () => {
+      raf = requestAnimationFrame(draw);
+      if (paused) return;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       for (const p of particles) {
@@ -436,13 +460,14 @@ function EnergyStreamsCanvas() {
       }
 
       time++;
-      raf = requestAnimationFrame(draw);
     };
     draw();
 
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("snap-section", onSection);
     };
   }, []);
 
@@ -464,15 +489,15 @@ export default function Projects() {
   const filtered = active === "ALL" ? projects : projects.filter((p) => p.category === active);
 
   return (
-    <section id="work" className="relative h-screen bg-[#080808] overflow-hidden flex flex-col">
+    <section id="work" className="relative h-screen overflow-hidden flex flex-col" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
       <EnergyStreamsCanvas />
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "rgba(8,8,8,0.90)", zIndex: 2 }}
+        style={{ background: "var(--bg-primary)", opacity: 0.88, zIndex: 2 }}
       />
 
       <div className="relative flex-1 overflow-y-auto" style={{ zIndex: 10 }}>
-        <div className="max-w-[1400px] mx-auto px-8 py-10">
+        <div className="max-w-[1400px] mx-auto px-8 pt-20 pb-8">
           <motion.div
             ref={ref}
             initial={{ opacity: 0, y: 30 }}
@@ -490,7 +515,7 @@ export default function Projects() {
               className="text-[clamp(2.5rem,6vw,5rem)] leading-none text-white tracking-wide mb-8"
               style={{ fontFamily: "'Bebas Neue', sans-serif" }}
             >
-              SELECTED WORK
+              <SplitScramble text="SELECTED WORK" stagger={0.05} />
             </h2>
 
             <div className="flex flex-wrap gap-2">
@@ -518,12 +543,11 @@ export default function Projects() {
             className="origin-left h-px bg-gold/20 mb-10"
           />
 
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-8">
-            <AnimatePresence mode="popLayout">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-8">
+            <AnimatePresence mode="sync">
               {filtered.map((p, i) => (
                 <motion.div
                   key={p.id}
-                  layout
                   initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.96 }}
@@ -537,7 +561,7 @@ export default function Projects() {
                 </motion.div>
               ))}
             </AnimatePresence>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
