@@ -5,13 +5,15 @@ import { useEffect, useRef } from "react";
 export default function CustomCursor() {
   const dotRef  = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
+  const viewRef = useRef<HTMLDivElement>(null);
   const mouse   = useRef({ x: -200, y: -200 });
   const ring    = useRef({ x: -200, y: -200 });
 
   useEffect(() => {
     const dot   = dotRef.current;
     const ringEl = ringRef.current;
-    if (!dot || !ringEl) return;
+    const viewEl = viewRef.current;
+    if (!dot || !ringEl || !viewEl) return;
 
     // Hide on touch-only devices
     if (window.matchMedia("(hover: none)").matches) {
@@ -33,6 +35,7 @@ export default function CustomCursor() {
         ringEl.style.height = "52px";
         ringEl.style.borderColor = `rgba(${accent},0.9)`;
         ringEl.style.backgroundColor = `rgba(${accent},0.06)`;
+        viewEl.style.opacity = "1";
       } else if (s === "button") {
         dot.style.opacity = "1";
         dot.style.width  = "4px";
@@ -49,6 +52,7 @@ export default function CustomCursor() {
         ringEl.style.height = "34px";
         ringEl.style.borderColor = `rgba(${accent},0.45)`;
         ringEl.style.backgroundColor = "transparent";
+        viewEl.style.opacity = "0";
       }
     };
 
@@ -91,6 +95,8 @@ export default function CustomCursor() {
       dot.style.top    = `${mouse.current.y}px`;
       ringEl.style.left = `${ring.current.x}px`;
       ringEl.style.top  = `${ring.current.y}px`;
+      viewEl.style.left = `${ring.current.x}px`;
+      viewEl.style.top  = `${ring.current.y}px`;
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -142,6 +148,28 @@ export default function CustomCursor() {
           top: -200,
         }}
       />
+      {/* VIEW label — shows on link hover */}
+      <div
+        ref={viewRef}
+        className="fixed pointer-events-none"
+        style={{
+          zIndex: 99999,
+          transform: "translate(-50%,-50%)",
+          opacity: 0,
+          transition: "opacity 0.2s ease",
+          fontFamily: "Inter, sans-serif",
+          fontSize: "9px",
+          fontVariationSettings: "'wght' 600",
+          letterSpacing: "0.25em",
+          textTransform: "uppercase",
+          color: "var(--accent)",
+          left: -200,
+          top: -200,
+          userSelect: "none",
+        }}
+      >
+        VIEW
+      </div>
     </>
   );
 }

@@ -170,7 +170,7 @@ function makeGlow(r: number, g: number, b: number) {
     full: `0 0 30px rgba(${r},${g},${b},0.8), 0 0 60px rgba(${r},${g},${b},0.4), 0 0 100px rgba(${r},${g},${b},0.2)`,
     half: `0 0 30px rgba(${r},${g},${b},0.4), 0 0 60px rgba(${r},${g},${b},0.2), 0 0 100px rgba(${r},${g},${b},0.1)`,
     low:  `0 0 20px rgba(${r},${g},${b},0.08), 0 0 40px rgba(${r},${g},${b},0.04)`,
-    idle: `0 0 20px rgba(${r},${g},${b},0.18), 0 0 40px rgba(${r},${g},${b},0.09)`,
+    idle: `0 0 80px rgba(${r},${g},${b},0.3)`,
   };
 }
 
@@ -204,6 +204,23 @@ export default function Hero() {
     <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
       <WebGLBackground />
       <WindTunnelSmoke />
+
+      {/* Scanline overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)",
+          zIndex: 6,
+        }}
+      />
+      {/* Vignette overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)",
+          zIndex: 6,
+        }}
+      />
 
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.04]">
         {Array.from({ length: 6 }).map((_, i) => (
@@ -264,18 +281,26 @@ export default function Hero() {
               letterSpacing: "0.4em",
               textTransform: "uppercase",
               marginTop: "1rem",
-              fontVariationSettings: "'wght' 300",
-              animation: "weight-pulse 3s ease-in-out 1.8s infinite",
+              display: "flex",
+              gap: "0.5em",
+              justifyContent: "center",
             }}
           >
-            <SplitText
-              text="VFX ARTIST"
-              stagger={0.03}
-              charDuration={0.4}
-              delay={1000}
-              triggerOnMount
-            />
+            <span style={{ fontVariationSettings: "'wght' 100" }}>
+              <SplitText text="VFX" stagger={0.03} charDuration={0.4} delay={1000} triggerOnMount />
+            </span>
+            <span style={{ fontVariationSettings: "'wght' 400", animation: "weight-pulse 3s ease-in-out 1.8s infinite" }}>
+              <SplitText text="ARTIST" stagger={0.03} charDuration={0.4} delay={1200} triggerOnMount />
+            </span>
           </p>
+          {/* Animated gold line under subtitle */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 1.8, ease: [0.23, 1, 0.32, 1] }}
+            className="origin-left h-px mt-3"
+            style={{ background: "linear-gradient(90deg, transparent, var(--accent), transparent)", width: 120, margin: "0.75rem auto 0" }}
+          />
         </div>
 
         {/* ── Subtitle group ── */}
@@ -321,7 +346,7 @@ export default function Hero() {
             transition={{ duration: 1.2, delay: 2.1 }}
             className="mt-10 flex flex-col items-center"
           >
-            <div className="w-28 h-px mb-8" style={{ background: "var(--border)" }} />
+            <div className="w-28 h-px mb-8" style={{ background: "linear-gradient(90deg, transparent, var(--accent), transparent)", opacity: 0.4 }} />
             <div className="flex items-start justify-center gap-8">
               {HERO_SOFTWARE.map((sw) => (
                 <HeroLogo key={sw.name} sw={sw} isLight={isLight} />

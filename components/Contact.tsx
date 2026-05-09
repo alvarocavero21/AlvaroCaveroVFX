@@ -154,11 +154,24 @@ export default function Contact() {
             className="lg:col-span-2 flex flex-col justify-center"
           >
             <p
-              className="text-xs tracking-[0.35em] uppercase text-muted mb-8"
+              className="text-xs tracking-[0.35em] uppercase text-muted mb-4"
               style={{ fontFamily: "Inter, sans-serif", fontVariationSettings: inView ? "'wght' 500" : "'wght' 300", transition: "font-variation-settings 0.8s ease" }}
             >
               Available for freelance & full-time
             </p>
+            {/* Availability status */}
+            <div className="flex items-center gap-2.5 mb-8">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span
+                className="text-[9px] tracking-[0.3em] uppercase"
+                style={{ fontFamily: "Inter, sans-serif", color: "var(--text-muted)" }}
+              >
+                Available for projects
+              </span>
+            </div>
 
             <div className="space-y-3 mb-10">
               {socials.map((s) => (
@@ -169,7 +182,7 @@ export default function Contact() {
                   rel="noopener noreferrer"
                   className="group flex items-center gap-4 p-4 border border-white/[0.06] hover:border-gold/40 hover:bg-gold/[0.04] transition-all duration-300"
                 >
-                  <span className="text-gold/50 group-hover:text-gold transition-colors duration-300">
+                  <span className="flex-shrink-0 w-9 h-9 rounded-full border border-gold/0 group-hover:border-gold/40 flex items-center justify-center text-gold/50 group-hover:text-gold transition-all duration-300">
                     {s.icon}
                   </span>
                   <div>
@@ -180,16 +193,23 @@ export default function Contact() {
                       {s.value}
                     </p>
                   </div>
-                  <svg className="w-3 h-3 ml-auto text-muted/30 group-hover:text-gold/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 ml-auto text-muted/30 group-hover:text-gold/50 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
                   </svg>
                 </MagneticLink>
               ))}
             </div>
 
-            <div className="text-xs text-muted tracking-wider" style={{ fontFamily: "Inter, sans-serif" }}>
-              <p className="text-white/40 mb-1">Based in</p>
-              <p>Madrid, Spain · Available remote worldwide</p>
+            <div className="flex items-start gap-3 text-xs text-muted tracking-wider" style={{ fontFamily: "Inter, sans-serif" }}>
+              <svg className="w-4 h-4 flex-shrink-0 mt-0.5 text-gold/40" fill="none" stroke="currentColor" strokeWidth={1.4} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <div>
+                <p className="text-white/40 mb-0.5 text-[9px] tracking-[0.3em] uppercase">Based in</p>
+                <p>Madrid, Spain</p>
+                <p className="text-white/30 text-[10px] mt-0.5">Available remote worldwide</p>
+              </div>
             </div>
           </motion.div>
 

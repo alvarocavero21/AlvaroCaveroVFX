@@ -2,7 +2,8 @@
 
 export default function Footer() {
   return (
-    <footer className="border-t py-8" style={{ backgroundColor: "var(--bg-secondary)", borderColor: "var(--border)" }}>
+    <footer className="relative py-8" style={{ backgroundColor: "var(--bg-secondary)" }}>
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
       <div className="max-w-[1400px] mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-4">
         <span
           className="text-xl tracking-[0.2em]"
@@ -14,7 +15,7 @@ export default function Footer() {
           className="text-[10px] tracking-wider"
           style={{ fontFamily: "Inter, sans-serif", color: "var(--text-muted)" }}
         >
-          © {new Date().getFullYear()} Alvaro Cavero. All rights reserved.
+          © 2025 Coque VFX. All rights reserved.
         </p>
         <div className="flex gap-6">
           {["Showreel", "Work", "Contact"].map((item) => (

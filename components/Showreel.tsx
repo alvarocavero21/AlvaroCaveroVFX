@@ -80,6 +80,14 @@ function ShowreelPlaceholder() {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-black">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+      {/* Subtle grid overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "linear-gradient(rgba(200,169,110,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(200,169,110,0.03) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
       {/* Rotating dashed border */}
       <div
         className="absolute pointer-events-none"
@@ -142,7 +150,7 @@ export default function Showreel() {
               className="text-[clamp(2rem,4.5vw,4rem)] leading-none text-white tracking-wide"
               style={{ fontFamily: "'Bebas Neue', sans-serif" }}
             >
-              <SplitScramble text="SHOWREEL" stagger={0.05} />
+              <SplitScramble text="· SHOWREEL ·" stagger={0.05} />
             </h2>
           </div>
           <div className="hidden md:block text-right">
@@ -165,18 +173,46 @@ export default function Showreel() {
       </div>
 
       {/* Player — fills remaining height so the title above is never squeezed off-screen */}
-      <div className="w-[90%] mx-auto flex-1 min-h-0">
-        <SpotlightCard glowColor="blue" customSize className="w-full h-full">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.9, delay: 0.15 }}
-            className="relative h-full bg-black overflow-hidden"
-            style={{ boxShadow: "0 40px 120px rgba(0,0,0,0.8)" }}
+      <div className="w-[90%] mx-auto flex-1 min-h-0 flex flex-col">
+        {/* Corner bracket wrapper */}
+        <div className="relative flex-1 min-h-0">
+          {/* TL bracket */}
+          <div className="absolute top-0 left-0 w-5 h-5 border-t border-l border-gold/50 z-20 pointer-events-none" />
+          {/* TR bracket */}
+          <div className="absolute top-0 right-0 w-5 h-5 border-t border-r border-gold/50 z-20 pointer-events-none" />
+          {/* BL bracket */}
+          <div className="absolute bottom-0 left-0 w-5 h-5 border-b border-l border-gold/50 z-20 pointer-events-none" />
+          {/* BR bracket */}
+          <div className="absolute bottom-0 right-0 w-5 h-5 border-b border-r border-gold/50 z-20 pointer-events-none" />
+
+          <SpotlightCard glowColor="blue" customSize className="w-full h-full">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.9, delay: 0.15 }}
+              className="relative h-full bg-black overflow-hidden"
+              style={{ boxShadow: "0 40px 120px rgba(0,0,0,0.8)" }}
+            >
+              <ShowreelPlaceholder />
+            </motion.div>
+          </SpotlightCard>
+        </div>
+
+        {/* Frame counter */}
+        <div className="flex items-center justify-between mt-2 px-1">
+          <span
+            className="text-[9px] tracking-[0.25em] text-gold/30"
+            style={{ fontFamily: "'Courier New', monospace" }}
           >
-            <ShowreelPlaceholder />
-          </motion.div>
-        </SpotlightCard>
+            [00:00:00]
+          </span>
+          <span
+            className="text-[9px] tracking-[0.25em] text-gold/20"
+            style={{ fontFamily: "'Courier New', monospace" }}
+          >
+            24FPS · 4K
+          </span>
+        </div>
       </div>
 
       <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />

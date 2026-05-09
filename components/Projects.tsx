@@ -105,6 +105,18 @@ function YouTubeCard({ p, i }: { p: YouTubeProject; i: number }) {
           onMouseLeave={() => setHovered(false)}
           onClick={() => setModal(true)}
         >
+          {/* Gold top border — fills left→right on hover */}
+          <div
+            className="absolute top-0 inset-x-0 h-px origin-left z-20 transition-transform duration-500"
+            style={{ background: "var(--accent)", transform: hovered ? "scaleX(1)" : "scaleX(0)" }}
+          />
+          {/* Large card number — watermark */}
+          <div
+            className="absolute top-2 right-4 z-10 pointer-events-none select-none leading-none"
+            style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(3rem,5vw,4.5rem)", color: "var(--accent)", opacity: 0.04 }}
+          >
+            {String(p.id).padStart(2, "0")}
+          </div>
           {/* Thumbnail area */}
           <div className="relative aspect-video overflow-hidden" style={{ backgroundColor: "var(--bg-tertiary)" }}>
             {/* Static thumbnail */}
@@ -255,11 +267,23 @@ function ProjectCard({ p, i }: { p: PlaceholderProject; i: number }) {
         initial={{ opacity: 0, scale: 0.95, y: 24 }}
         animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
         transition={{ duration: 0.65, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-        className="group relative overflow-hidden border border-white/[0.06] hover:border-gold/30 transition-all duration-500"
+        className="group relative overflow-hidden border border-gold/20 hover:border-gold/40 transition-all duration-500"
         style={{ backgroundColor: "var(--bg-secondary)" }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
+        {/* Gold top border — fills left→right on hover */}
+        <div
+          className="absolute top-0 inset-x-0 h-px origin-left z-20 transition-transform duration-500"
+          style={{ background: "var(--accent)", transform: hovered ? "scaleX(1)" : "scaleX(0)" }}
+        />
+        {/* Large card number — watermark */}
+        <div
+          className="absolute top-2 right-4 z-10 pointer-events-none select-none leading-none"
+          style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(3rem,5vw,4.5rem)", color: "var(--accent)", opacity: 0.04 }}
+        >
+          {String(p.id).padStart(2, "0")}
+        </div>
         {/* Thumbnail — Coming Soon placeholder */}
         <div className="relative aspect-video overflow-hidden bg-[#0a0a0a] flex flex-col items-center justify-center gap-3">
           <div
@@ -511,12 +535,20 @@ export default function Projects() {
             >
               Portfolio
             </p>
-            <h2
-              className="text-[clamp(2.5rem,6vw,5rem)] leading-none text-white tracking-wide mb-8"
-              style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-            >
-              <SplitScramble text="SELECTED WORK" stagger={0.05} />
-            </h2>
+            <div className="flex items-baseline gap-4 mb-8">
+              <h2
+                className="text-[clamp(2.5rem,6vw,5rem)] leading-none text-white tracking-wide"
+                style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+              >
+                <SplitScramble text="SELECTED WORK" stagger={0.05} />
+              </h2>
+              <span
+                className="text-[9px] tracking-[0.4em] uppercase text-gold/40 hidden md:block"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                {String(projects.length).padStart(2, "0")} PROJECTS
+              </span>
+            </div>
 
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((cat) => (
@@ -526,7 +558,7 @@ export default function Projects() {
                   className={`text-[9px] tracking-[0.3em] uppercase px-4 py-2.5 border transition-all duration-300 ${
                     active === cat
                       ? "border-gold bg-gold/10 text-gold"
-                      : "border-white/10 text-muted hover:border-gold/30 hover:text-white/60"
+                      : "border-gold/20 text-muted hover:border-gold/40 hover:text-white/60"
                   }`}
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
