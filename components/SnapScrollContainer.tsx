@@ -6,7 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 const DURATION = 800;
 const EASING   = "cubic-bezier(0.76, 0, 0.24, 1)";
 
-// Hard-coded source of truth — dots and total are ALWAYS derived from here, never from children
+// Single source of truth — dots and TOTAL are ALWAYS derived from here
 const SECTIONS = [
   { name: "Hero"     },
   { name: "Showreel" },
@@ -17,13 +17,11 @@ const TOTAL = SECTIONS.length; // 4 — immutable
 
 // ── Per-dot component ─────────────────────────────────────────────────────────
 function NavDot({
-  index,
   isActive,
   isLight,
   name,
   onClick,
 }: {
-  index: number;
   isActive: boolean;
   isLight: boolean;
   name: string;
@@ -33,7 +31,6 @@ function NavDot({
 
   return (
     <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-      {/* Label — slides in from right on hover */}
       <span
         style={{
           position: "absolute",
@@ -87,14 +84,10 @@ function NavDot({
 export default function SnapScrollContainer({ children }: { children: React.ReactNode }) {
   const [current, setCurrent] = useState(0);
   const { theme } = useTheme();
-  const isLight        = theme === "light";
-  const transitioning  = useRef(false);
-  const currentRef     = useRef(0);
-  const touchStartY    = useRef(0);
-
-  // Slice to exactly TOTAL — guards against any React double-render quirk
-  // passing extra children through the RSC boundary
-  const panels = Children.toArray(children).slice(0, TOTAL);
+  const isLight       = theme === "light";
+  const transitioning = useRef(false);
+  const currentRef    = useRef(0);
+  const touchStartY   = useRef(0);
 
   const goTo = useCallback((next: number) => {
     if (next < 0 || next >= TOTAL) return;
@@ -108,15 +101,15 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
 
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      // Allow internal scrollable elements (e.g. Projects card list) to scroll first
+      // Let internally-scrollable elements (e.g. Projects card list) scroll first
       const target = e.target as HTMLElement;
       let el: HTMLElement | null = target;
       while (el && el !== document.body) {
         const s = window.getComputedStyle(el);
-        const scrollable =
+        const isScrollable =
           (s.overflowY === "auto" || s.overflowY === "scroll") &&
           el.scrollHeight > el.clientHeight;
-        if (scrollable) {
+        if (isScrollable) {
           if (e.deltaY < 0 && el.scrollTop > 0) return;
           if (e.deltaY > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 2) return;
         }
@@ -141,7 +134,6 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
       else if (d < -50) goTo(currentRef.current - 1);
     };
 
-    // External navigation (Navbar links, Hero CTA, etc.)
     const onGoto = (e: Event) => {
       transitioning.current = false;
       goTo((e as CustomEvent<number>).detail);
@@ -162,29 +154,43 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
     };
   }, [goTo]);
 
+  // Collect panels — all 4 children; each gets its own 100vh slot in the strip
+  const panels = Children.toArray(children);
+
   return (
     <>
-      {/* Section stack — full-viewport, GPU-accelerated slide */}
+      {/*
+        Outer window: fixed, clips to viewport.
+        Inner strip: all sections stacked top-to-bottom (total height = TOTAL × 100vh).
+        Navigation = translateY(-current × 100vh) on the inner strip.
+        No z-index fighting, no stacking context issues — every section is always in the DOM.
+      */}
       <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
-        {panels.map((panel, i) => (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: i + 1,
-              transform: i > current ? "translateY(100%) scale(1.02)" : "translateY(0) scale(1)",
-              transition: `transform ${DURATION}ms ${EASING}`,
-              willChange: Math.abs(i - current) <= 1 ? "transform" : "auto",
-              contain: "layout style paint",
-            }}
-          >
-            {panel}
-          </div>
-        ))}
+        <div
+          style={{
+            width: "100%",
+            transform: `translateY(-${current * 100}vh)`,
+            transition: `transform ${DURATION}ms ${EASING}`,
+            willChange: "transform",
+          }}
+        >
+          {panels.map((panel, i) => (
+            <div
+              key={i}
+              style={{ width: "100%", height: "100vh", overflow: "hidden", position: "relative" }}
+            >
+              {panel}
+            </div>
+          ))}
+
+          {/* Padding slots if somehow fewer than TOTAL children are passed */}
+          {Array.from({ length: Math.max(0, TOTAL - panels.length) }).map((_, i) => (
+            <div key={`pad-${i}`} style={{ width: "100%", height: "100vh" }} />
+          ))}
+        </div>
       </div>
 
-      {/* Dot navigation — always exactly TOTAL dots, driven by SECTIONS constant */}
+      {/* Navigation dots — always exactly TOTAL, driven by SECTIONS constant, never by panels */}
       <nav
         aria-label="Section navigation"
         style={{
@@ -202,7 +208,6 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
         {SECTIONS.map(({ name }, i) => (
           <NavDot
             key={i}
-            index={i}
             isActive={i === current}
             isLight={isLight}
             name={name}
