@@ -2,11 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import MagneticWrapper from "./MagneticWrapper";
-import { FloatingPaths } from "@/components/ui/background-paths";
 import { SplitText } from "@/components/ui/split-text";
 import { useActiveSection } from "@/components/ui/variable-text";
 import { useTheme } from "@/contexts/ThemeContext";
+
+const FloatingPaths = dynamic<{ position: number }>(
+  () => import("@/components/ui/background-paths").then((m) => ({ default: m.FloatingPaths })),
+  { ssr: false }
+);
 
 // ── Inline SVG icons ──────────────────────────────────────────────────────────
 
@@ -129,7 +134,7 @@ function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
           width: 70,
           height: 70,
           color: "#c8a96e",
-          opacity: hovered ? 0.75 : 0.48,
+          opacity: hovered ? 1.0 : 0.70,
           filter: hovered ? "brightness(1.3)" : "brightness(1)",
           transition: hovered ? "opacity 0.1s ease, filter 0.1s ease" : "opacity 0.4s ease, filter 0.4s ease",
         }}
@@ -234,7 +239,7 @@ export default function Hero() {
         ))}
       </div>
 
-      <div className="relative z-10 text-center px-6 select-none">
+      <div className="relative z-20 text-center px-6 select-none">
 
         {/* ── Name group ── */}
         <div className="flex flex-col items-center">

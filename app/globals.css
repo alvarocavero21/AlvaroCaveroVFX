@@ -262,7 +262,7 @@ html.light article { box-shadow: 0 2px 20px rgba(0,0,0,0.08); }
 #showreel,
 #work,
 #contact {
-  contain: layout style;
+  contain: layout style paint;
   touch-action: pan-y;
 }
 

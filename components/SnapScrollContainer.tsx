@@ -178,7 +178,7 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
               transition: `transform ${DURATION}ms ${EASING}`,
               // willChange only on sections adjacent to the snap point — not all 4 permanently
               willChange: Math.abs(i - current) <= 1 ? "transform" : "auto",
-              contain: "layout style",
+              contain: "layout style paint",
             }}
           >
             {section}

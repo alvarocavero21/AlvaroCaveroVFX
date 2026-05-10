@@ -1,23 +1,36 @@
 'use client'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 
-// Deterministic pseudo-random to avoid SSR/client hydration mismatch
+// Deterministic pseudo-random — avoids SSR/client hydration mismatch
 const det = (i: number) => ((i * 2654435761) % 2 ** 32) / 2 ** 32
 
 export function FloatingPaths({ position }: { position: number }) {
-  const paths = Array.from({ length: 36 }, (_, i) => ({
+  const [paused, setPaused] = useState(false)
+
+  useEffect(() => {
+    const onVisibility = () => setPaused(document.hidden)
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [])
+
+  // 20 paths (down from 36) for better performance
+  const paths = Array.from({ length: 20 }, (_, i) => ({
     id: i,
-    d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${
-      380 - i * 5 * position
-    } -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 5} ${
-      152 - i * 5 * position
-    } ${343 - i * 2}C${616 - i * 5 * position} ${470 - i * 5} ${
-      684 - i * 5 * position
-    } ${875 - i * 5} ${684 - i * 5 * position} ${875 - i * 5}`,
-    width: 0.5 + i * 0.03,
+    d: `M-${380 - i * 9 * position} -${189 + i * 10}C-${
+      380 - i * 9 * position
+    } -${189 + i * 10} -${312 - i * 9 * position} ${216 - i * 8} ${
+      152 - i * 9 * position
+    } ${343 - i * 3}C${616 - i * 9 * position} ${470 - i * 8} ${
+      684 - i * 9 * position
+    } ${875 - i * 8} ${684 - i * 9 * position} ${875 - i * 8}`,
+    width: 0.5 + i * 0.05,
     duration: 20 + det(i) * 10,
-    opacity: 0.1 + i * 0.03,
+    opacity: 0.08 + i * 0.045,
   }))
+
+  const idleState  = { pathLength: 0.3, opacity: 0.6 }
+  const liveState  = { pathLength: 1, opacity: [0.3, 0.6, 0.3], pathOffset: [0, 1, 0] }
 
   return (
     <div className="absolute inset-0 pointer-events-none">
@@ -26,6 +39,7 @@ export function FloatingPaths({ position }: { position: number }) {
         viewBox="0 0 696 316"
         fill="none"
         preserveAspectRatio="xMidYMid slice"
+        style={{ pointerEvents: 'none' }}
       >
         {paths.map((path) => (
           <motion.path
@@ -34,12 +48,8 @@ export function FloatingPaths({ position }: { position: number }) {
             stroke="currentColor"
             strokeWidth={path.width}
             strokeOpacity={path.opacity}
-            initial={{ pathLength: 0.3, opacity: 0.6 }}
-            animate={{
-              pathLength: 1,
-              opacity: [0.3, 0.6, 0.3],
-              pathOffset: [0, 1, 0],
-            }}
+            initial={idleState}
+            animate={paused ? idleState : liveState}
             transition={{
               duration: path.duration,
               repeat: Infinity,
