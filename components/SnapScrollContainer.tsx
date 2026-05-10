@@ -99,6 +99,14 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
     setTimeout(() => { transitioning.current = false; }, DURATION + 100);
   }, []);
 
+  // Prevent browser scroll-restoration from showing a section other than Hero on reload
+  useEffect(() => {
+    if (typeof window !== "undefined" && "scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       // Let internally-scrollable elements (e.g. Projects card list) scroll first
