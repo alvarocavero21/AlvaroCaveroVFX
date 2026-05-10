@@ -74,18 +74,16 @@ const IconComfy = () => (
   </svg>
 );
 
-type HeroSW = { name: string; slug?: string; icon: React.ReactNode; isLight?: boolean };
+type HeroSW = { name: string; logoSrc?: string; icon: React.ReactNode };
 
 const HERO_SOFTWARE: HeroSW[] = [
-  { name: "Houdini", slug: "houdini",      icon: <IconHoudini /> },
-  { name: "Maya",    slug: "autodesk",     icon: <IconMaya /> },
-  { name: "Nuke",    slug: undefined,      icon: <IconNuke /> },
-  { name: "Unreal",  slug: "unrealengine", icon: <IconUnreal /> },
-  { name: "ComfyUI", slug: undefined,      icon: <IconComfy /> },
+  { name: "Houdini",       logoSrc: "/logos/houdini.svg", icon: <IconHoudini /> },
+  { name: "Maya",          logoSrc: "/logos/maya.svg",    icon: <IconMaya /> },
+  { name: "Unreal Engine", logoSrc: "/logos/unreal.png",  icon: <IconUnreal /> },
+  { name: "ComfyUI",       logoSrc: "/logos/comfyui.png", icon: <IconComfy /> },
 ];
 
 function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
-  const [failed, setFailed] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
@@ -114,6 +112,14 @@ function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
     ? "transform 0.1s ease, box-shadow 0.1s ease"
     : "transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1)";
 
+  // Converts any logo to gold on dark bg, dark on light bg
+  const darkFilter = hovered
+    ? "brightness(0) invert(1) sepia(1) saturate(1.5) hue-rotate(5deg)"
+    : "brightness(0) invert(1) sepia(1) saturate(1.5) hue-rotate(5deg) opacity(0.65)";
+  const lightFilter = hovered
+    ? "brightness(0) opacity(0.65)"
+    : "brightness(0) opacity(0.35)";
+
   return (
     <div
       ref={cardRef}
@@ -129,27 +135,32 @@ function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
         boxShadow: hovered ? "0 20px 40px rgba(200,169,110,0.4)" : "0 0 0 rgba(0,0,0,0)",
       }}
     >
-      <div
-        style={{
-          width: 70,
-          height: 70,
-          color: "#c8a96e",
-          opacity: hovered ? 1.0 : 0.70,
-          filter: hovered ? "brightness(1.3)" : "brightness(1)",
-          transition: hovered ? "opacity 0.1s ease, filter 0.1s ease" : "opacity 0.4s ease, filter 0.4s ease",
-        }}
-      >
-        {sw.slug && !failed ? (
+      <div style={{ width: 70, height: 70 }}>
+        {sw.logoSrc ? (
           <img
-            src={`https://cdn.simpleicons.org/${sw.slug}/c8a96e`}
+            src={sw.logoSrc}
             alt={sw.name}
             width={70}
             height={70}
-            onError={() => setFailed(true)}
             className="w-full h-full object-contain"
+            style={{
+              filter: isLight ? lightFilter : darkFilter,
+              transition: hovered ? "filter 0.1s ease" : "filter 0.4s ease",
+            }}
           />
         ) : (
-          sw.icon
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              color: "#c8a96e",
+              opacity: hovered ? 1.0 : 0.70,
+              filter: hovered ? "brightness(1.3)" : "brightness(1)",
+              transition: hovered ? "opacity 0.1s ease, filter 0.1s ease" : "opacity 0.4s ease, filter 0.4s ease",
+            }}
+          >
+            {sw.icon}
+          </div>
         )}
       </div>
       <span
