@@ -9,6 +9,10 @@ import { useActiveSection } from "@/components/ui/variable-text";
 import { useTheme } from "@/contexts/ThemeContext";
 import dynamic from "next/dynamic";
 const WindTunnelSmoke = dynamic(() => import("@/components/ui/wind-tunnel-smoke"), { ssr: false });
+const SpiralAnimation = dynamic(
+  () => import("@/components/ui/spiral-animation").then((m) => ({ default: m.SpiralAnimation })),
+  { ssr: false }
+);
 
 // ── Inline SVG icons ──────────────────────────────────────────────────────────
 
@@ -202,7 +206,21 @@ export default function Hero() {
 
   return (
     <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
-      <WebGLBackground />
+      {/* Spiral animation — lowest layer, transparent bg so site theme shows through */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: 0,
+          opacity: isLight ? 0.15 : 0.4,
+          mixBlendMode: "screen",
+        }}
+      >
+        <SpiralAnimation />
+      </div>
+
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1, opacity: 0.3 }}>
+        <WebGLBackground />
+      </div>
       <WindTunnelSmoke />
 
       {/* Scanline overlay */}
