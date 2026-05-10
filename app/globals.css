@@ -279,5 +279,17 @@ body::after {
   background-size: 200px 200px;
 }
 
+/* ── COQUE title — idle glow pulse ─────────────────────────────────────────── */
+@keyframes letter-glow-pulse {
+  from { text-shadow: 0 0 40px rgba(200,169,110,0.3); }
+  to   { text-shadow: 0 0 80px rgba(200,169,110,0.8); }
+}
+@keyframes letter-glow-pulse-light {
+  from { text-shadow: 0 0 40px rgba(184,148,58,0.3); }
+  to   { text-shadow: 0 0 80px rgba(184,148,58,0.8); }
+}
+.letter-glow-idle       { animation: letter-glow-pulse       3s ease-in-out infinite alternate; }
+.letter-glow-idle-light { animation: letter-glow-pulse-light 3s ease-in-out infinite alternate; }
+
 /* ── Utility ──────────────────────────────────────────────────────────────── */
 .text-gold { letter-spacing: 0.02em; }

@@ -3,16 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import MagneticWrapper from "./MagneticWrapper";
-import WebGLBackground from "@/components/ui/webgl-background";
+import { FloatingPaths } from "@/components/ui/background-paths";
 import { SplitText } from "@/components/ui/split-text";
 import { useActiveSection } from "@/components/ui/variable-text";
 import { useTheme } from "@/contexts/ThemeContext";
-import dynamic from "next/dynamic";
-const WindTunnelSmoke = dynamic(() => import("@/components/ui/wind-tunnel-smoke"), { ssr: false });
-const SpiralAnimation = dynamic(
-  () => import("@/components/ui/spiral-animation").then((m) => ({ default: m.SpiralAnimation })),
-  { ssr: false }
-);
 
 // ── Inline SVG icons ──────────────────────────────────────────────────────────
 
@@ -130,7 +124,6 @@ function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
         boxShadow: hovered ? "0 20px 40px rgba(200,169,110,0.4)" : "0 0 0 rgba(0,0,0,0)",
       }}
     >
-      {/* 70×70px logo */}
       <div
         style={{
           width: 70,
@@ -174,14 +167,13 @@ function makeGlow(r: number, g: number, b: number) {
     full: `0 0 30px rgba(${r},${g},${b},0.8), 0 0 60px rgba(${r},${g},${b},0.4), 0 0 100px rgba(${r},${g},${b},0.2)`,
     half: `0 0 30px rgba(${r},${g},${b},0.4), 0 0 60px rgba(${r},${g},${b},0.2), 0 0 100px rgba(${r},${g},${b},0.1)`,
     low:  `0 0 20px rgba(${r},${g},${b},0.08), 0 0 40px rgba(${r},${g},${b},0.04)`,
-    idle: `0 0 80px rgba(${r},${g},${b},0.3)`,
   };
 }
 
-function getLetterGlow(i: number, active: number | null, isLight: boolean): string {
+function getLetterGlow(i: number, active: number | null, isLight: boolean): string | undefined {
+  if (active === null) return undefined; // idle glow is handled by CSS keyframe animation
   const rgb = isLight ? [184, 148, 58] : [200, 169, 110];
   const g = makeGlow(rgb[0], rgb[1], rgb[2]);
-  if (active === null) return g.idle;
   const d = Math.abs(i - active);
   if (d === 0) return g.full;
   if (d === 1) return g.half;
@@ -195,7 +187,6 @@ export default function Hero() {
   const { theme } = useTheme();
   const isLight = theme === "light";
 
-  // Hide scroll hint once user navigates away (never bring it back — it's a first-visit cue)
   useEffect(() => {
     const handle = (e: Event) => {
       if ((e as CustomEvent<number>).detail !== 0) setShowHint(false);
@@ -206,22 +197,19 @@ export default function Hero() {
 
   return (
     <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
-      {/* Spiral animation — lowest layer, transparent bg so site theme shows through */}
+
+      {/* FloatingPaths background — two mirrored instances */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           zIndex: 0,
-          opacity: isLight ? 0.15 : 0.4,
-          mixBlendMode: "screen",
+          color: isLight ? "rgba(15,23,42,0.75)" : "rgba(255,255,255,0.65)",
+          transition: "color 0.4s ease",
         }}
       >
-        <SpiralAnimation />
+        <FloatingPaths position={1} />
+        <FloatingPaths position={-1} />
       </div>
-
-      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1, opacity: 0.3 }}>
-        <WebGLBackground />
-      </div>
-      <WindTunnelSmoke />
 
       {/* Scanline overlay */}
       <div
@@ -279,10 +267,11 @@ export default function Hero() {
                   onHoverStart={() => setActiveIdx(i)}
                   onHoverEnd={() => setActiveIdx(null)}
                   whileHover={{ y: -10, color: isLight ? "#1a1a1a" : "#ffffff", transition: { type: "spring", stiffness: 500, damping: 18 } }}
+                  className={activeIdx === null ? (isLight ? "letter-glow-idle-light" : "letter-glow-idle") : ""}
                   style={{
                     display: "inline-block",
                     cursor: "default",
-                    textShadow: getLetterGlow(i, activeIdx, isLight),
+                    ...(activeIdx !== null ? { textShadow: getLetterGlow(i, activeIdx, isLight) } : {}),
                     transition: "text-shadow 0.2s ease",
                   }}
                 >
@@ -382,7 +371,7 @@ export default function Hero() {
         transition={{ delay: showHint ? 2.2 : 0, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         onClick={() => window.dispatchEvent(new CustomEvent("snap-goto", { detail: 1 }))}
-        style={{ cursor: "pointer" }}
+        style={{ cursor: "pointer", zIndex: 10 }}
       >
         <span className="text-[9px] tracking-[0.4em] uppercase text-muted" style={{ fontFamily: "Inter, sans-serif" }}>
           Scroll
