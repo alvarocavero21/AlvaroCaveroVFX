@@ -5,9 +5,17 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 const DURATION = 800;
 const EASING   = "cubic-bezier(0.76, 0, 0.24, 1)";
-const SECTION_NAMES = ["Hero", "Showreel", "Work", "Contact"];
 
-// ── Per-dot component so each can have its own hover state ───────────────────
+// Hard-coded source of truth — dots and total are ALWAYS derived from here, never from children
+const SECTIONS = [
+  { name: "Hero"     },
+  { name: "Showreel" },
+  { name: "Work"     },
+  { name: "Contact"  },
+] as const;
+const TOTAL = SECTIONS.length; // 4 — immutable
+
+// ── Per-dot component ─────────────────────────────────────────────────────────
 function NavDot({
   index,
   isActive,
@@ -25,7 +33,7 @@ function NavDot({
 
   return (
     <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-      {/* Section label — slides in from right on hover */}
+      {/* Label — slides in from right on hover */}
       <span
         style={{
           position: "absolute",
@@ -41,13 +49,8 @@ function NavDot({
           pointerEvents: "none",
           opacity: hovered ? 1 : 0,
           transform: hovered ? "translateX(0)" : "translateX(8px)",
-          fontVariationSettings: isActive
-            ? "'wght' 700"
-            : hovered
-            ? "'wght' 500"
-            : "'wght' 300",
-          transition:
-            "opacity 0.25s ease, transform 0.25s ease, font-variation-settings 0.3s ease",
+          fontVariationSettings: isActive ? "'wght' 700" : hovered ? "'wght' 500" : "'wght' 300",
+          transition: "opacity 0.25s ease, transform 0.25s ease, font-variation-settings 0.3s ease",
         }}
       >
         {name}
@@ -70,6 +73,7 @@ function NavDot({
           border: "none",
           padding: 0,
           outline: "none",
+          cursor: "pointer",
           transition: "all 0.35s cubic-bezier(0.23,1,0.32,1)",
           animation: isActive ? "dot-pulse 2.2s ease-in-out infinite" : "none",
           boxShadow: isActive ? "0 0 10px rgba(var(--accent-rgb),0.5)" : "none",
@@ -79,42 +83,39 @@ function NavDot({
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────────
+// ── Main container ────────────────────────────────────────────────────────────
 export default function SnapScrollContainer({ children }: { children: React.ReactNode }) {
-  const [current, setCurrent]   = useState(0);
+  const [current, setCurrent] = useState(0);
   const { theme } = useTheme();
-  const isLight = theme === "light";
-  const transitioning           = useRef(false);
-  const currentRef              = useRef(0);
-  const touchStartY             = useRef(0);
-  const dispatchingRef          = useRef(false);
-  const containerRef            = useRef<HTMLDivElement>(null);
-  const sections                = Children.toArray(children);
-  const total                   = sections.length;
+  const isLight        = theme === "light";
+  const transitioning  = useRef(false);
+  const currentRef     = useRef(0);
+  const touchStartY    = useRef(0);
+
+  // Slice to exactly TOTAL — guards against any React double-render quirk
+  // passing extra children through the RSC boundary
+  const panels = Children.toArray(children).slice(0, TOTAL);
 
   const goTo = useCallback((next: number) => {
-    if (next < 0 || next >= total) return;
+    if (next < 0 || next >= TOTAL) return;
     if (next === currentRef.current) return;
-
     transitioning.current = true;
     currentRef.current    = next;
     setCurrent(next);
-
-    // Broadcast section change (Navbar + Hero listen to this)
-    dispatchingRef.current = true;
     window.dispatchEvent(new CustomEvent("snap-section", { detail: next }));
-    dispatchingRef.current = false;
-
     setTimeout(() => { transitioning.current = false; }, DURATION + 100);
-  }, [total]);
+  }, []);
 
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
+      // Allow internal scrollable elements (e.g. Projects card list) to scroll first
       const target = e.target as HTMLElement;
       let el: HTMLElement | null = target;
       while (el && el !== document.body) {
-        const style = window.getComputedStyle(el);
-        const scrollable = (style.overflowY === "auto" || style.overflowY === "scroll") && el.scrollHeight > el.clientHeight;
+        const s = window.getComputedStyle(el);
+        const scrollable =
+          (s.overflowY === "auto" || s.overflowY === "scroll") &&
+          el.scrollHeight > el.clientHeight;
         if (scrollable) {
           if (e.deltaY < 0 && el.scrollTop > 0) return;
           if (e.deltaY > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 2) return;
@@ -124,29 +125,29 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
       e.preventDefault();
       if (transitioning.current) return;
       if (e.deltaY > 0) goTo(currentRef.current + 1);
-      else               goTo(currentRef.current - 1);
+      else              goTo(currentRef.current - 1);
     };
 
     const onKey = (e: KeyboardEvent) => {
       if (["ArrowDown", "PageDown"].includes(e.key)) { e.preventDefault(); goTo(currentRef.current + 1); }
-      if (["ArrowUp",   "PageUp"].includes(e.key))   { e.preventDefault(); goTo(currentRef.current - 1); }
+      if (["ArrowUp",   "PageUp"  ].includes(e.key)) { e.preventDefault(); goTo(currentRef.current - 1); }
     };
 
     const onTouchStart = (e: TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
     const onTouchEnd   = (e: TouchEvent) => {
       if (transitioning.current) return;
       const d = touchStartY.current - e.changedTouches[0].clientY;
-      if (d > 50)       goTo(currentRef.current + 1);
+      if      (d >  50) goTo(currentRef.current + 1);
       else if (d < -50) goTo(currentRef.current - 1);
     };
 
-    // "snap-goto" = external command (navbar links, buttons)
+    // External navigation (Navbar links, Hero CTA, etc.)
     const onGoto = (e: Event) => {
       transitioning.current = false;
       goTo((e as CustomEvent<number>).detail);
     };
 
-    window.addEventListener("wheel",      onWheel, { passive: false });
+    window.addEventListener("wheel",      onWheel,      { passive: false });
     window.addEventListener("keydown",    onKey);
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchend",   onTouchEnd,   { passive: true });
@@ -163,30 +164,27 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
 
   return (
     <>
-      {/* Section stack */}
-      <div ref={containerRef} style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
-        {sections.map((section, i) => (
+      {/* Section stack — full-viewport, GPU-accelerated slide */}
+      <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
+        {panels.map((panel, i) => (
           <div
             key={i}
             style={{
               position: "absolute",
               inset: 0,
               zIndex: i + 1,
-              transform: i > current
-                ? "translateY(100%) scale(1.02)"
-                : "translateY(0) scale(1)",
+              transform: i > current ? "translateY(100%) scale(1.02)" : "translateY(0) scale(1)",
               transition: `transform ${DURATION}ms ${EASING}`,
-              // willChange only on sections adjacent to the snap point — not all 4 permanently
               willChange: Math.abs(i - current) <= 1 ? "transform" : "auto",
               contain: "layout style paint",
             }}
           >
-            {section}
+            {panel}
           </div>
         ))}
       </div>
 
-      {/* Dot navigation */}
+      {/* Dot navigation — always exactly TOTAL dots, driven by SECTIONS constant */}
       <nav
         aria-label="Section navigation"
         style={{
@@ -201,13 +199,13 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
           gap: 16,
         }}
       >
-        {sections.map((_, i) => (
+        {SECTIONS.map(({ name }, i) => (
           <NavDot
             key={i}
             index={i}
             isActive={i === current}
             isLight={isLight}
-            name={SECTION_NAMES[i] ?? `Section ${i + 1}`}
+            name={name}
             onClick={() => { transitioning.current = false; goTo(i); }}
           />
         ))}
