@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { BGPattern } from "@/components/ui/bg-pattern";
@@ -7,9 +8,35 @@ import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { SplitScramble } from "@/components/ui/split-text";
 
 const SHOWREEL_ID = "quPEH2QJRRI";
+const FPS = 24;
 
 export default function Showreel() {
   const { ref, inView } = useInView({ threshold: 0.25, triggerOnce: false });
+  const [timecode, setTimecode] = useState("00:00:00");
+  const startRef = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (inView) {
+      startRef.current = Date.now();
+      intervalRef.current = setInterval(() => {
+        const elapsed = Date.now() - (startRef.current ?? Date.now());
+        const totalFrames = Math.floor((elapsed / 1000) * FPS);
+        const frames  = totalFrames % FPS;
+        const totalSecs = Math.floor(elapsed / 1000);
+        const secs    = totalSecs % 60;
+        const minutes = Math.floor(totalSecs / 60);
+        setTimecode(
+          `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}:${String(frames).padStart(2, "0")}`
+        );
+      }, 1000 / 12);
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      startRef.current = null;
+      setTimecode("00:00:00");
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [inView]);
 
   return (
     <section
@@ -95,7 +122,7 @@ export default function Showreel() {
         {/* Frame counter */}
         <div className="flex items-center justify-between mt-2 px-1">
           <span className="text-[9px] tracking-[0.25em] text-gold/30" style={{ fontFamily: "'Courier New', monospace" }}>
-            [00:00:00]
+            [{timecode}]
           </span>
           <span className="text-[9px] tracking-[0.25em] text-gold/20" style={{ fontFamily: "'Courier New', monospace" }}>
             24FPS · 4K

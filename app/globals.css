@@ -291,5 +291,17 @@ body::after {
 .letter-glow-idle       { animation: letter-glow-pulse       3s ease-in-out infinite alternate; }
 .letter-glow-idle-light { animation: letter-glow-pulse-light 3s ease-in-out infinite alternate; }
 
+/* ── Contact form: gold focus glow ───────────────────────────────────────── */
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus {
+  box-shadow: 0 0 0 1px rgba(200, 169, 110, 0.22), 0 0 24px rgba(200, 169, 110, 0.07);
+}
+html.light input[type="text"]:focus,
+html.light input[type="email"]:focus,
+html.light textarea:focus {
+  box-shadow: 0 0 0 1px rgba(184, 148, 58, 0.30), 0 0 20px rgba(184, 148, 58, 0.09);
+}
+
 /* ── Utility ──────────────────────────────────────────────────────────────── */
 .text-gold { letter-spacing: 0.02em; }

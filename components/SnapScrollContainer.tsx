@@ -198,6 +198,48 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
         </div>
       </div>
 
+      {/* Editorial section counter — bottom-left */}
+      <div
+        aria-hidden
+        style={{
+          position: "fixed",
+          bottom: 32,
+          left: 32,
+          zIndex: 99999,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          gap: 2,
+          pointerEvents: "none",
+          userSelect: "none",
+          fontFamily: "'Courier New', monospace",
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            letterSpacing: "0.22em",
+            color: isLight ? "rgba(26,26,26,0.45)" : "rgba(200,169,110,0.65)",
+            lineHeight: 1,
+            transition: "color 0.4s ease",
+          }}
+        >
+          {String(current + 1).padStart(2, "0")}
+        </span>
+        <div style={{ width: 18, height: 1, background: isLight ? "rgba(26,26,26,0.15)" : "rgba(200,169,110,0.25)", transition: "background 0.4s ease" }} />
+        <span
+          style={{
+            fontSize: 9,
+            letterSpacing: "0.18em",
+            color: isLight ? "rgba(26,26,26,0.20)" : "rgba(200,169,110,0.30)",
+            lineHeight: 1,
+            transition: "color 0.4s ease",
+          }}
+        >
+          {String(TOTAL).padStart(2, "0")}
+        </span>
+      </div>
+
       {/* Navigation dots — always exactly TOTAL, driven by SECTIONS constant, never by panels */}
       <nav
         aria-label="Section navigation"
