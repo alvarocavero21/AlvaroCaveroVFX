@@ -75,6 +75,11 @@ export default function Showreel() {
               className="relative h-full bg-black overflow-hidden"
               style={{ boxShadow: "0 40px 120px rgba(0,0,0,0.8)" }}
             >
+              {/* Transparent overlay so wheel events bubble to the window snap-scroll handler instead of being swallowed by the cross-origin iframe */}
+              <div
+                className="absolute inset-0"
+                style={{ zIndex: 10, background: "transparent", pointerEvents: "auto" }}
+              />
               <iframe
                 src={`https://www.youtube.com/embed/${SHOWREEL_ID}?autoplay=0&controls=1&rel=0&modestbranding=1`}
                 title="Showreel"
