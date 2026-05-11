@@ -56,9 +56,27 @@ export default function CustomCursor() {
       }
     };
 
-    const onDown = () => {
+    const onDown = (e: MouseEvent) => {
       dot.style.transform = "translate(-50%,-50%) scale(1.6)";
       ringEl.style.transform = "translate(-50%,-50%) scale(0.82)";
+      // Spawn a gold ripple ring at the click position
+      const ripple = document.createElement("div");
+      const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#c8a96e";
+      ripple.style.cssText = [
+        "position:fixed",
+        `left:${e.clientX}px`,
+        `top:${e.clientY}px`,
+        "width:0",
+        "height:0",
+        `border:1px solid ${accent}`,
+        "border-radius:50%",
+        "transform:translate(-50%,-50%)",
+        "pointer-events:none",
+        "z-index:99997",
+        "animation:cursor-ripple 0.4s ease-out forwards",
+      ].join(";");
+      document.body.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 420);
     };
     const onUp = () => {
       dot.style.transform = "translate(-50%,-50%) scale(1)";
@@ -73,13 +91,13 @@ export default function CustomCursor() {
       document.querySelectorAll<HTMLElement>("button").forEach(el => {
         el.addEventListener("mouseenter", () => apply("button"));
         el.addEventListener("mouseleave", () => apply("default"));
-        el.addEventListener("mousedown",  onDown);
-        el.addEventListener("mouseup",    onUp);
       });
     };
     wire();
 
-    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousemove",  onMove);
+    window.addEventListener("mousedown",  onDown);
+    window.addEventListener("mouseup",    onUp);
 
     // Pick up dynamically added elements
     const mo = new MutationObserver(wire);
@@ -104,6 +122,8 @@ export default function CustomCursor() {
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup",   onUp);
       mo.disconnect();
     };
   }, []);

@@ -291,6 +291,12 @@ body::after {
 .letter-glow-idle       { animation: letter-glow-pulse       3s ease-in-out infinite alternate; }
 .letter-glow-idle-light { animation: letter-glow-pulse-light 3s ease-in-out infinite alternate; }
 
+/* ── Cursor click ripple ─────────────────────────────────────────────────── */
+@keyframes cursor-ripple {
+  from { width: 0px;  height: 0px;  opacity: 0.9; }
+  to   { width: 40px; height: 40px; opacity: 0;   }
+}
+
 /* ── Contact form: gold focus glow ───────────────────────────────────────── */
 input[type="text"]:focus,
 input[type="email"]:focus,

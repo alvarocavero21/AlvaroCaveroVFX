@@ -13,8 +13,29 @@ const FPS = 24;
 export default function Showreel() {
   const { ref, inView } = useInView({ threshold: 0.25, triggerOnce: false });
   const [timecode, setTimecode] = useState("00:00:00");
-  const startRef = useRef<number | null>(null);
+  const startRef    = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const overlayRef  = useRef<HTMLDivElement>(null);
+  const restoreRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // On mousedown: briefly drop pointer-events so the click reaches YouTube,
+  // then restore so the overlay can keep capturing wheel events.
+  useEffect(() => {
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+    const handleMouseDown = () => {
+      overlay.style.pointerEvents = "none";
+      if (restoreRef.current) clearTimeout(restoreRef.current);
+      restoreRef.current = setTimeout(() => {
+        if (overlayRef.current) overlayRef.current.style.pointerEvents = "auto";
+      }, 700);
+    };
+    overlay.addEventListener("mousedown", handleMouseDown);
+    return () => {
+      overlay.removeEventListener("mousedown", handleMouseDown);
+      if (restoreRef.current) clearTimeout(restoreRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (inView) {
@@ -102,8 +123,10 @@ export default function Showreel() {
               className="relative h-full bg-black overflow-hidden"
               style={{ boxShadow: "0 40px 120px rgba(0,0,0,0.8)" }}
             >
-              {/* Transparent overlay so wheel events bubble to the window snap-scroll handler instead of being swallowed by the cross-origin iframe */}
+              {/* Overlay: captures wheel events (pointer-events:auto) for snap-scroll;
+                  drops to none on mousedown for 700ms so YouTube clicks pass through */}
               <div
+                ref={overlayRef}
                 className="absolute inset-0"
                 style={{ zIndex: 10, background: "transparent", pointerEvents: "auto" }}
               />
