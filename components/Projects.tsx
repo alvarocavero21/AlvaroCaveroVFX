@@ -6,7 +6,7 @@ import { useInView } from "react-intersection-observer";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { SplitScramble } from "@/components/ui/split-text";
 
-const CATEGORIES = ["ALL", "COMPOSITING", "PYRO & FIRE", "WATER & FLUIDS", "DESTRUCTION", "CHARACTER FX", "ENVIRONMENTS"] as const;
+const CATEGORIES = ["ALL", "COMPOSITING", "FX SIMULATION", "PYRO & FIRE", "WATER & FLUIDS", "DESTRUCTION", "CHARACTER FX", "ENVIRONMENTS"] as const;
 type Category = (typeof CATEGORIES)[number];
 
 type BaseProject = {
@@ -34,42 +34,11 @@ const projects: Project[] = [
   },
   {
     id: 2,
-    title: "DRAGON BATTLE",
-    category: "CHARACTER FX",
-    software: ["Houdini", "Karma"],
-    desc: "Full creature FX pipeline with procedural scales, fire breath and cloth simulation.",
-    year: "2024",
-  },
-  {
-    id: 3,
-    title: "HELICOPTER ISLAND",
-    category: "ENVIRONMENTS",
-    software: ["Houdini", "Karma", "ComfyUI"],
-    desc: "Large-scale procedural island environment with atmospheric FX and rotor wash.",
-    year: "2024",
-  },
-  {
-    id: 4,
-    title: "WATERFALL",
-    category: "WATER & FLUIDS",
-    software: ["Houdini", "FLIP", "Karma"],
-    desc: "FLIP fluid waterfall with whitewater, foam and mist volumes rendered with Karma XPU.",
-    year: "2024",
-  },
-  {
-    id: 5,
-    title: "DESTRUCTION RIG",
-    category: "DESTRUCTION",
-    software: ["Houdini", "RBD", "Karma"],
-    desc: "Procedural constraint network for photorealistic building demolition.",
-    year: "2024",
-  },
-  {
-    id: 6,
-    title: "BURNING CLOTH",
-    category: "CHARACTER FX",
-    software: ["Houdini", "Vellum", "Karma"],
-    desc: "Vellum cloth destruction with integrated pyro for burning fabric simulation.",
+    title: "NATURE TAKEOVER",
+    category: "FX SIMULATION",
+    software: ["Houdini", "Nuke"],
+    youtubeId: "ECXjw5t7fQI",
+    desc: "Nature reclaims an urban environment — procedural growth, destruction and atmospheric FX simulation.",
     year: "2025",
   },
 ];
@@ -520,8 +489,8 @@ export default function Projects() {
         style={{ background: "var(--bg-primary)", opacity: 0.88, zIndex: 2 }}
       />
 
-      <div className="relative flex-1 overflow-y-auto" style={{ zIndex: 10 }}>
-        <div className="max-w-[1400px] mx-auto px-8 pt-20 pb-8">
+      <div className="relative flex-1 overflow-hidden" style={{ zIndex: 10 }}>
+        <div className="max-w-[1400px] mx-auto px-8 pt-16 pb-6">
           <motion.div
             ref={ref}
             initial={{ opacity: 0, y: 30 }}
@@ -535,9 +504,9 @@ export default function Projects() {
             >
               Portfolio
             </p>
-            <div className="flex items-baseline gap-4 mb-8">
+            <div className="flex items-baseline gap-4 mb-6">
               <h2
-                className="text-[clamp(2.5rem,6vw,5rem)] leading-none text-white tracking-wide"
+                className="text-[clamp(2rem,5vw,4rem)] leading-none text-white tracking-wide"
                 style={{ fontFamily: "'Bebas Neue', sans-serif" }}
               >
                 <SplitScramble text="SELECTED WORK" stagger={0.05} />
@@ -572,10 +541,10 @@ export default function Projects() {
             initial={{ scaleX: 0 }}
             animate={inView ? { scaleX: 1 } : {}}
             transition={{ duration: 0.9 }}
-            className="origin-left h-px bg-gold/20 mb-10"
+            className="origin-left h-px bg-gold/20 mb-6"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pb-4">
             <AnimatePresence mode="sync">
               {filtered.map((p, i) => (
                 <motion.div
