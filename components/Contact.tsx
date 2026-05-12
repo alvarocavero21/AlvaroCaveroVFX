@@ -127,7 +127,7 @@ export default function Contact() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="lg:col-span-2 flex justify-center lg:justify-end"
           >
-            <div className="relative w-[200px] h-[200px] lg:w-[280px] lg:h-[280px]">
+            <div className="relative w-[260px] h-[260px] lg:w-[380px] lg:h-[380px]">
               {/* Gold glow ring */}
               <div
                 className="absolute inset-0 rounded-full pointer-events-none"
