@@ -127,35 +127,31 @@ export default function Contact() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="lg:col-span-2 flex justify-center lg:justify-end"
           >
-            {/* TODO: Replace placeholder with real photo */}
-            {/* Add photo to public/images/profile.jpg */}
-            {/* Then change src="/images/placeholder-profile.jpg" to src="/images/profile.jpg" */}
             <div className="relative w-[200px] h-[200px] lg:w-[280px] lg:h-[280px]">
-              {/* Subtle gold glow */}
+              {/* Gold glow ring */}
               <div
-                className="absolute inset-0 rounded-2xl pointer-events-none"
+                className="absolute inset-0 rounded-full pointer-events-none"
                 style={{
                   boxShadow:
-                    "0 0 40px rgba(200,169,110,0.18), 0 0 80px rgba(200,169,110,0.07)",
+                    "0 0 30px rgba(200,169,110,0.20), 0 0 60px rgba(200,169,110,0.08)",
                 }}
               />
-              {/* Frame */}
+              {/* Circular frame */}
               <div
-                className="relative w-full h-full rounded-2xl overflow-hidden flex items-center justify-center bg-[#111]"
-                style={{ border: "1px solid rgba(200,169,110,0.4)" }}
+                className="relative w-full h-full rounded-full overflow-hidden"
+                style={{ border: "1px solid rgba(200,169,110,0.5)" }}
               >
-                {/* Placeholder initials — swap for <img> when photo is ready */}
-                <span
-                  className="select-none"
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/profile.jpg"
+                  alt="Alvaro Cavero"
                   style={{
-                    fontFamily: "'Bebas Neue', sans-serif",
-                    color: "rgba(200,169,110,0.45)",
-                    fontSize: "clamp(2.5rem,6vw,4rem)",
-                    letterSpacing: "0.12em",
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    objectPosition: "center top",
                   }}
-                >
-                  CQ
-                </span>
+                />
               </div>
             </div>
           </motion.div>
