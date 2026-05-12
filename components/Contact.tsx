@@ -149,7 +149,7 @@ export default function Contact() {
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
-                    objectPosition: "center 5%",
+                    objectPosition: "center 0%",
                   }}
                 />
               </div>
