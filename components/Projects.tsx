@@ -6,7 +6,7 @@ import { useInView } from "react-intersection-observer";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { SplitScramble } from "@/components/ui/split-text";
 
-const CATEGORIES = ["ALL", "COMPOSITING", "FX SIMULATION", "PYRO & FIRE", "WATER & FLUIDS", "DESTRUCTION", "CHARACTER FX", "ENVIRONMENTS"] as const;
+const CATEGORIES = ["ALL", "COMPOSITING", "FX SIMULATION", "PYRO & FIRE", "WATER & FLUIDS", "DESTRUCTION", "CHARACTER FX", "ENVIRONMENTS", "UNREAL ENGINE"] as const;
 type Category = (typeof CATEGORIES)[number];
 
 type BaseProject = {
@@ -57,6 +57,15 @@ const projects: Project[] = [
     software: ["Houdini", "Nuke", "Maya", "Premiere"],
     youtubeId: "_sHke4iLrjg",
     desc: "FLIP water and whitewater simulation in Houdini — a dinosaur crossing a river beneath a waterfall. Includes a simulation breakdown.",
+    year: "2026",
+  },
+  {
+    id: 5,
+    title: "CITY MUSTANG",
+    category: "UNREAL ENGINE",
+    software: ["Unreal Engine", "Nuke"],
+    youtubeId: "5OiXs6pik64",
+    desc: "A Mustang driving through the city — cinematic real-time sequence built and rendered in Unreal Engine, finished in Nuke.",
     year: "2026",
   },
 ];
