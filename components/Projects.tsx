@@ -50,7 +50,18 @@ const projects: Project[] = [
     desc: "RBD ground fracture simulation in Houdini — procedural fracturing, rigid body dynamics and a Karma render.",
     year: "2026",
   },
+  {
+    id: 4,
+    title: "DINO WATERFALL",
+    category: "WATER & FLUIDS",
+    software: ["Houdini", "Nuke", "Maya", "Premiere"],
+    youtubeId: "_sHke4iLrjg",
+    desc: "FLIP water and whitewater simulation in Houdini — a dinosaur crossing a river beneath a waterfall. Includes a simulation breakdown.",
+    year: "2026",
+  },
 ];
+
+const THUMB_QUALITIES = ["maxresdefault", "sddefault", "hqdefault"] as const;
 
 // ── YouTube Card ──────────────────────────────────────────────────────────────
 
@@ -59,7 +70,18 @@ function YouTubeCard({ p, i }: { p: YouTubeProject; i: number }) {
   const [modal, setModal] = useState(false);
   const { ref, inView } = useInView({ threshold: 0.08, triggerOnce: true });
 
-  const thumb = `https://img.youtube.com/vi/${p.youtubeId}/maxresdefault.jpg`;
+  // maxresdefault doesn't exist for every video — YouTube serves a 120px placeholder instead,
+  // so step down to the next quality when that happens.
+  const [thumbIdx, setThumbIdx] = useState(0);
+  const thumb = `https://img.youtube.com/vi/${p.youtubeId}/${THUMB_QUALITIES[thumbIdx]}.jpg`;
+  const thumbRef = useRef<HTMLImageElement>(null);
+  const checkThumb = (img: HTMLImageElement) => {
+    if (img.naturalWidth <= 120) setThumbIdx((q) => Math.min(q + 1, THUMB_QUALITIES.length - 1));
+  };
+  // The page is prerendered, so the image can finish loading before hydration and onLoad never fires.
+  useEffect(() => {
+    if (thumbRef.current?.complete) checkThumb(thumbRef.current);
+  }, [thumbIdx]);
 
   // Modal ESC
   useEffect(() => {
@@ -101,6 +123,9 @@ function YouTubeCard({ p, i }: { p: YouTubeProject; i: number }) {
             <img
               src={thumb}
               alt={p.title}
+              ref={thumbRef}
+              onLoad={(e) => checkThumb(e.currentTarget)}
+              onError={(e) => checkThumb(e.currentTarget)}
               className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
               style={{ opacity: hovered ? 0 : 1 }}
             />
