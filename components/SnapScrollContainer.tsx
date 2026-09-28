@@ -134,10 +134,33 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
       if (["ArrowUp",   "PageUp"  ].includes(e.key)) { e.preventDefault(); goTo(currentRef.current - 1); }
     };
 
-    const onTouchStart = (e: TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
+    // Touch: same idea as wheel — if the swipe started inside a scrollable element
+    // (e.g. Projects card list) that wasn't at its edge, let it scroll instead of snapping
+    let touchScrollEl: HTMLElement | null = null;
+    let touchStartScroll = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY.current = e.touches[0].clientY;
+      touchScrollEl = null;
+      let el = e.target as HTMLElement | null;
+      while (el && el !== document.body) {
+        const s = window.getComputedStyle(el);
+        if ((s.overflowY === "auto" || s.overflowY === "scroll") && el.scrollHeight > el.clientHeight) {
+          touchScrollEl = el;
+          touchStartScroll = el.scrollTop;
+          break;
+        }
+        el = el.parentElement;
+      }
+    };
     const onTouchEnd   = (e: TouchEvent) => {
       if (transitioning.current) return;
       const d = touchStartY.current - e.changedTouches[0].clientY;
+      if (touchScrollEl) {
+        const atTop    = touchStartScroll <= 0;
+        const atBottom = touchStartScroll + touchScrollEl.clientHeight >= touchScrollEl.scrollHeight - 2;
+        if (d >  50 && !atBottom) return;
+        if (d < -50 && !atTop)    return;
+      }
       if      (d >  50) goTo(currentRef.current + 1);
       else if (d < -50) goTo(currentRef.current - 1);
     };

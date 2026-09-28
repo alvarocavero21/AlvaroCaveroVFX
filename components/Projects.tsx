@@ -41,6 +41,15 @@ const projects: Project[] = [
     desc: "Nature reclaims an urban environment — procedural growth, destruction and atmospheric FX simulation.",
     year: "2025",
   },
+  {
+    id: 3,
+    title: "GROUND DESTRUCTION",
+    category: "DESTRUCTION",
+    software: ["Houdini", "Karma"],
+    youtubeId: "EDasAkp61AU",
+    desc: "RBD ground fracture simulation in Houdini — procedural fracturing, rigid body dynamics and a Karma render.",
+    year: "2026",
+  },
 ];
 
 // ── YouTube Card ──────────────────────────────────────────────────────────────
@@ -489,7 +498,7 @@ export default function Projects() {
         style={{ background: "var(--bg-primary)", opacity: 0.88, zIndex: 2 }}
       />
 
-      <div className="relative flex-1 overflow-hidden" style={{ zIndex: 10 }}>
+      <div className="relative flex-1 overflow-y-auto overscroll-contain" style={{ zIndex: 10 }}>
         <div className="max-w-[1400px] mx-auto px-8 pt-16 pb-6">
           <motion.div
             ref={ref}
@@ -544,7 +553,7 @@ export default function Projects() {
             className="origin-left h-px bg-gold/20 mb-6"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 pb-4">
             <AnimatePresence mode="sync">
               {filtered.map((p, i) => (
                 <motion.div
