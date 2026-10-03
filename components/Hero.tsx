@@ -83,7 +83,8 @@ type HeroSW = { name: string; logoSrc?: string; icon: React.ReactNode };
 
 const HERO_SOFTWARE: HeroSW[] = [
   { name: "Houdini",       logoSrc: "/logos/houdini.svg", icon: <IconHoudini /> },
-  { name: "Maya",          logoSrc: "/logos/maya.svg",    icon: <IconMaya /> },
+  { name: "Nuke",          icon: <IconNuke /> },
+  { name: "Maya",         logoSrc: "/logos/maya.svg",    icon: <IconMaya /> },
   { name: "Unreal Engine", logoSrc: "/logos/unreal.png",  icon: <IconUnreal /> },
   { name: "ComfyUI",       logoSrc: "/logos/comfyui.png", icon: <IconComfy /> },
 ];
@@ -392,7 +393,7 @@ export default function Hero() {
             className="mt-10 flex flex-col items-center"
           >
             <div className="w-28 h-px mb-8" style={{ background: "linear-gradient(90deg, transparent, var(--accent), transparent)", opacity: 0.4 }} />
-            <div className="flex items-start justify-center gap-8">
+            <div className="flex flex-wrap items-start justify-center gap-4 sm:gap-8">
               {HERO_SOFTWARE.map((sw) => (
                 <HeroLogo key={sw.name} sw={sw} isLight={isLight} />
               ))}
