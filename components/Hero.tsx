@@ -13,6 +13,11 @@ const FloatingPaths = dynamic<{ position: number }>(
   { ssr: false }
 );
 
+const EmberField = dynamic(
+  () => import("@/components/ui/ember-field").then((m) => ({ default: m.EmberField })),
+  { ssr: false }
+);
+
 // ── Inline SVG icons ──────────────────────────────────────────────────────────
 
 const IconHoudini = () => (
@@ -199,6 +204,7 @@ function getLetterGlow(i: number, active: number | null, isLight: boolean): stri
 export default function Hero() {
   const [showHint, setShowHint] = useState(true);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const [noWebGL, setNoWebGL] = useState(false);
   const section = useActiveSection();
   const { theme } = useTheme();
   const isLight = theme === "light";
@@ -214,18 +220,34 @@ export default function Hero() {
   return (
     <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
 
-      {/* FloatingPaths background — two mirrored instances */}
+      {/* Faint heat glow at the base the embers rise from */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           zIndex: 0,
-          color: isLight ? "rgba(15,23,42,0.75)" : "rgba(255,255,255,0.65)",
-          transition: "color 0.4s ease",
+          background: "radial-gradient(ellipse 80% 45% at 50% 115%, rgba(var(--accent-rgb),0.10), transparent 70%)",
         }}
-      >
-        <FloatingPaths position={1} />
-        <FloatingPaths position={-1} />
-      </div>
+      />
+
+      {noWebGL ? (
+        /* Fallback without WebGL: FloatingPaths, two mirrored instances */
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            zIndex: 0,
+            color: isLight ? "rgba(15,23,42,0.75)" : "rgba(255,255,255,0.65)",
+            transition: "color 0.4s ease",
+          }}
+        >
+          <FloatingPaths position={1} />
+          <FloatingPaths position={-1} />
+        </div>
+      ) : (
+        /* GPU ember field — paused while the Hero isn't the active section */
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+          <EmberField active={section === 0} isLight={isLight} onUnavailable={() => setNoWebGL(true)} />
+        </div>
+      )}
 
       {/* Scanline overlay */}
       <div
