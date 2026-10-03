@@ -83,7 +83,7 @@ type HeroSW = { name: string; logoSrc?: string; icon: React.ReactNode };
 
 const HERO_SOFTWARE: HeroSW[] = [
   { name: "Houdini",       logoSrc: "/logos/houdini.svg", icon: <IconHoudini /> },
-  { name: "Nuke",          icon: <IconNuke /> },
+  { name: "Nuke",          logoSrc: "/logos/nuke.svg",    icon: <IconNuke /> },
   { name: "Maya",         logoSrc: "/logos/maya.svg",    icon: <IconMaya /> },
   { name: "Unreal Engine", logoSrc: "/logos/unreal.png",  icon: <IconUnreal /> },
   { name: "ComfyUI",       logoSrc: "/logos/comfyui.png", icon: <IconComfy /> },
