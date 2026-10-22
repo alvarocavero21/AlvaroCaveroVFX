@@ -4,6 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Snap panel height ─────────────────────────────────────────────────────
+   100vh is the *large* viewport on iOS Safari / mobile Chrome (toolbar hidden), so each
+   100vh panel overflowed the visible area and its bottom was clipped behind the toolbar.
+   dvh tracks the visible height; on desktop dvh === vh, so nothing changes there. */
+:root { --snap-h: 100vh; }
+@supports (height: 100dvh) { :root { --snap-h: 100dvh; } }
+
 /* ── Theme: dark (default) ────────────────────────────────────────────────── */
 :root {
   --bg-primary:        #080808;
@@ -59,6 +66,8 @@ html.light {
 html {
   background: var(--bg-primary);
   overflow: hidden;
+  /* No pull-to-refresh / rubber-band on mobile: swipes are snap gestures */
+  overscroll-behavior: none;
   height: 100%;
   scroll-behavior: auto;
   transition: background-color 0.4s ease;
@@ -66,17 +75,21 @@ html {
 
 body {
   background: var(--bg-primary);
+  overscroll-behavior: none;
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   overflow: hidden;
   height: 100%;
-  cursor: none;
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* Hide default cursor everywhere */
-*, *::before, *::after {
-  cursor: none !important;
+/* Hide default cursor everywhere — only where CustomCursor renders (same media query),
+   otherwise touch/hybrid devices end up with no cursor at all */
+@media (hover: hover) and (pointer: fine) {
+  body,
+  *, *::before, *::after {
+    cursor: none !important;
+  }
 }
 
 /* Hide all scrollbars */

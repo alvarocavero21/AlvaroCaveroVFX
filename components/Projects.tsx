@@ -129,6 +129,8 @@ function YouTubeCard({ p, i }: { p: YouTubeProject; i: number }) {
           {/* Thumbnail area */}
           <div className="relative aspect-video overflow-hidden" style={{ backgroundColor: "var(--bg-tertiary)" }}>
             {/* Static thumbnail */}
+            {/* Plain <img> on purpose: checkThumb reads the original naturalWidth to detect YouTube's 120px placeholder, which next/image's resizing would hide */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={thumb}
               alt={p.title}
@@ -525,7 +527,7 @@ export default function Projects() {
   const filtered = active === "ALL" ? projects : projects.filter((p) => p.category === active);
 
   return (
-    <section id="work" className="relative h-screen overflow-hidden flex flex-col" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
+    <section id="work" className="relative h-full overflow-hidden flex flex-col" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
       <EnergyStreamsCanvas />
       <div
         className="absolute inset-0 pointer-events-none"

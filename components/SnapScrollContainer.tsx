@@ -5,6 +5,8 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 const DURATION = 800;
 const EASING   = "cubic-bezier(0.76, 0, 0.24, 1)";
+// Wheel events closer together than this belong to the same gesture (incl. macOS/Safari trackpad momentum)
+const WHEEL_GESTURE_GAP = 200;
 
 // Single source of truth — dots and TOTAL are ALWAYS derived from here
 const SECTIONS = [
@@ -88,6 +90,8 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
   const transitioning = useRef(false);
   const currentRef    = useRef(0);
   const touchStartY   = useRef(0);
+  const unlockTimer   = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const windowRef     = useRef<HTMLDivElement>(null);
 
   const goTo = useCallback((next: number) => {
     if (next < 0 || next >= TOTAL) return;
@@ -96,8 +100,12 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
     currentRef.current    = next;
     setCurrent(next);
     window.dispatchEvent(new CustomEvent("snap-section", { detail: next }));
-    setTimeout(() => { transitioning.current = false; }, DURATION + 100);
+    // A nav click mid-transition starts a new one: drop the previous unlock so it can't end this one early
+    if (unlockTimer.current) clearTimeout(unlockTimer.current);
+    unlockTimer.current = setTimeout(() => { transitioning.current = false; }, DURATION + 100);
   }, []);
+
+  useEffect(() => () => { if (unlockTimer.current) clearTimeout(unlockTimer.current); }, []);
 
   // Prevent browser scroll-restoration from showing a section other than Hero on reload
   useEffect(() => {
@@ -108,6 +116,9 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
   }, []);
 
   useEffect(() => {
+    let lastWheelAt     = 0;
+    let wheelGestureUsed = false;
+
     const onWheel = (e: WheelEvent) => {
       // Let internally-scrollable elements (e.g. Projects card list) scroll first
       const target = e.target as HTMLElement;
@@ -124,7 +135,13 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
         el = el.parentElement;
       }
       e.preventDefault();
-      if (transitioning.current) return;
+      // Trackpad momentum keeps firing wheel events for 1–2s, longer than the transition lock,
+      // which made one swipe skip two sections. Only one snap per continuous wheel gesture.
+      const now = performance.now();
+      if (now - lastWheelAt > WHEEL_GESTURE_GAP) wheelGestureUsed = false;
+      lastWheelAt = now;
+      if (transitioning.current || wheelGestureUsed) return;
+      wheelGestureUsed = true;
       if (e.deltaY > 0) goTo(currentRef.current + 1);
       else              goTo(currentRef.current - 1);
     };
@@ -153,16 +170,36 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
       }
     };
     const onTouchEnd   = (e: TouchEvent) => {
+      const scrollEl = touchScrollEl;
+      touchScrollEl = null;
       if (transitioning.current) return;
       const d = touchStartY.current - e.changedTouches[0].clientY;
-      if (touchScrollEl) {
+      if (scrollEl) {
         const atTop    = touchStartScroll <= 0;
-        const atBottom = touchStartScroll + touchScrollEl.clientHeight >= touchScrollEl.scrollHeight - 2;
+        const atBottom = touchStartScroll + scrollEl.clientHeight >= scrollEl.scrollHeight - 2;
         if (d >  50 && !atBottom) return;
         if (d < -50 && !atTop)    return;
       }
       if      (d >  50) goTo(currentRef.current + 1);
       else if (d < -50) goTo(currentRef.current - 1);
+    };
+
+    // iOS fires touchcancel instead of touchend when the system takes the gesture over
+    const onTouchCancel = () => { touchScrollEl = null; };
+
+    // Panels sit inside an overflow:hidden window. Focusing an element in an off-screen panel
+    // (Tab key, screen readers) makes the browser scroll that window, which shifts every panel
+    // out of alignment with the translateY strip. Undo that scroll and snap to the focused panel.
+    const win = windowRef.current;
+    const onWindowScroll = () => { if (win && win.scrollTop !== 0) win.scrollTop = 0; };
+    const onFocusIn = (e: FocusEvent) => {
+      const strip = win?.firstElementChild;
+      if (!strip) return;
+      const idx = Array.from(strip.children).findIndex((panel) => panel.contains(e.target as Node));
+      if (idx >= 0 && idx < TOTAL && idx !== currentRef.current) {
+        transitioning.current = false;
+        goTo(idx);
+      }
     };
 
     const onGoto = (e: Event) => {
@@ -174,14 +211,20 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
     window.addEventListener("keydown",    onKey);
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchend",   onTouchEnd,   { passive: true });
+    window.addEventListener("touchcancel", onTouchCancel, { passive: true });
     window.addEventListener("snap-goto",  onGoto);
+    win?.addEventListener("scroll",  onWindowScroll, { passive: true });
+    win?.addEventListener("focusin", onFocusIn);
 
     return () => {
       window.removeEventListener("wheel",      onWheel);
       window.removeEventListener("keydown",    onKey);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend",   onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchCancel);
       window.removeEventListener("snap-goto",  onGoto);
+      win?.removeEventListener("scroll",  onWindowScroll);
+      win?.removeEventListener("focusin", onFocusIn);
     };
   }, [goTo]);
 
@@ -196,11 +239,12 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
         Navigation = translateY(-current × 100vh) on the inner strip.
         No z-index fighting, no stacking context issues — every section is always in the DOM.
       */}
-      <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
+      <div ref={windowRef} style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
         <div
           style={{
             width: "100%",
-            transform: `translateY(-${current * 100}vh)`,
+            // --snap-h = 100dvh where supported (see globals.css) so panels match the visible viewport on mobile
+            transform: `translateY(calc(var(--snap-h) * -${current}))`,
             transition: `transform ${DURATION}ms ${EASING}`,
             willChange: "transform",
           }}
@@ -208,7 +252,7 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
           {panels.map((panel, i) => (
             <div
               key={i}
-              style={{ width: "100%", height: "100vh", overflow: "hidden", position: "relative" }}
+              style={{ width: "100%", height: "var(--snap-h)", overflow: "hidden", position: "relative" }}
             >
               {panel}
             </div>
@@ -216,7 +260,7 @@ export default function SnapScrollContainer({ children }: { children: React.Reac
 
           {/* Padding slots if somehow fewer than TOTAL children are passed */}
           {Array.from({ length: Math.max(0, TOTAL - panels.length) }).map((_, i) => (
-            <div key={`pad-${i}`} style={{ width: "100%", height: "100vh" }} />
+            <div key={`pad-${i}`} style={{ width: "100%", height: "var(--snap-h)" }} />
           ))}
         </div>
       </div>

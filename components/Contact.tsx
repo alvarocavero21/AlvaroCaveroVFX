@@ -99,7 +99,7 @@ export default function Contact() {
     <section
       id="contact"
       ref={ref}
-      className="relative h-screen overflow-hidden flex flex-col justify-center pt-20 pb-8"
+      className="relative h-full overflow-hidden flex flex-col justify-center pt-20 pb-8"
       style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}
     >
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
