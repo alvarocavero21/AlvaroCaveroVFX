@@ -16,13 +16,20 @@ export const metadata: Metadata = {
   },
 };
 
+// Applies the saved theme before first paint so light-theme visitors don't see a dark flash
+// while React hydrates (ThemeProvider only reads localStorage after mount).
+const themeScript = `try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light")}catch(e){}`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {/* Non-blocking font load: <link> beats CSS @import for render-blocking */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        {/* App Router has no pages/_document.js, so this layout is the shared head — the rule is a false positive here */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"

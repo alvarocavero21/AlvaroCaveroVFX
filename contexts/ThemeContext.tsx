@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 type Theme = "dark" | "light";
 
@@ -9,37 +9,31 @@ interface ThemeContextValue {
   toggleTheme: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextValue>({
-  theme: "dark",
-  toggleTheme: () => {},
-});
+// The source of truth is the `light` class on <html>, set before first paint by the inline script
+// in app/layout.tsx. Reading it through useSyncExternalStore (server snapshot = "dark") makes every
+// component hydrate with the server value and then re-render with the real one. A plain context
+// state broke this: sections loaded with next/dynamic hydrate later, after the provider had already
+// switched to "light", so React hydrated them with mismatched classNames and never patched them.
+const listeners = new Set<() => void>();
 
-export function useTheme(): ThemeContextValue {
-  return useContext(ThemeContext);
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => { listeners.delete(listener); };
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+const getSnapshot = (): Theme =>
+  document.documentElement.classList.contains("light") ? "light" : "dark";
 
-  // Read from localStorage on mount and apply class to <html>
-  useEffect(() => {
-    const saved = (localStorage.getItem("theme") as Theme) ?? "dark";
-    setTheme(saved);
-    document.documentElement.classList.toggle("light", saved === "light");
-  }, []);
+const getServerSnapshot = (): Theme => "dark";
 
-  const toggleTheme = () => {
-    setTheme((prev) => {
-      const next: Theme = prev === "dark" ? "light" : "dark";
-      localStorage.setItem("theme", next);
-      document.documentElement.classList.toggle("light", next === "light");
-      return next;
-    });
-  };
+function toggleTheme() {
+  const next: Theme = getSnapshot() === "dark" ? "light" : "dark";
+  try { localStorage.setItem("theme", next); } catch { /* storage blocked (Safari private mode) */ }
+  document.documentElement.classList.toggle("light", next === "light");
+  listeners.forEach((l) => l());
+}
 
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+export function useTheme(): ThemeContextValue {
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  return { theme, toggleTheme };
 }
