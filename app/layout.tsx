@@ -4,6 +4,7 @@ import Providers from "@/components/Providers";
 import ThemeToggle from "@/components/ui/theme-toggle";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://alvaro-cavero-vfx.vercel.app"),
   title: "Alvaro VFX | Alvaro Cavero, FX Artist",
   description:
     "Alvaro Cavero, FX Artist based in Madrid. Specializing in photorealistic destruction, fire, water simulation and cinematic rendering for cinema and games. Houdini · Karma · Nuke · Unreal Engine.",

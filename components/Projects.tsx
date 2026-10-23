@@ -541,6 +541,8 @@ export default function Projects() {
   const { ref, inView } = useInView({ threshold: 0.05, triggerOnce: true });
 
   const filtered = active === "ALL" ? projects : projects.filter((p) => p.category === active);
+  // Only show filters that have at least one project
+  const categories = CATEGORIES.filter((c) => c === "ALL" || projects.some((p) => p.category === c));
 
   return (
     <section id="work" className="relative h-screen overflow-hidden flex flex-col" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
@@ -581,7 +583,7 @@ export default function Projects() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActive(cat)}

@@ -46,4 +46,4 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host ""
 Write-Host "Deployed! Opening Vercel site..." -ForegroundColor Green
-Start-Process "https://alvarocaverovfx.vercel.app"
+Start-Process "https://alvaro-cavero-vfx.vercel.app"

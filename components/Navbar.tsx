@@ -39,7 +39,8 @@ export default function Navbar() {
       }`}
       style={scrolled ? { background: "var(--bg-nav)" } : {}}
     >
-      <div className="max-w-[1400px] mx-auto px-8 py-5 flex items-center justify-between">
+      {/* pr-32 leaves room for the fixed theme toggle (layout.tsx) so it never covers Contact / the mobile menu button */}
+      <div className="max-w-[1400px] mx-auto pl-8 pr-32 py-5 flex items-center justify-between">
         <button
           onClick={() => goto(0)}
           style={{ fontFamily: "'Bebas Neue', sans-serif", color: "var(--text-primary)" }}
