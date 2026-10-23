@@ -68,6 +68,24 @@ const projects: Project[] = [
     desc: "A Mustang driving through the city — cinematic real-time sequence built and rendered in Unreal Engine, finished in Nuke.",
     year: "2026",
   },
+  {
+    id: 6,
+    title: "GIDEON TELEPORT",
+    category: "CHARACTER FX",
+    software: ["Houdini", "Karma", "Nuke"],
+    youtubeId: "s2YE5GiN7VI",
+    desc: "Gideon gathers energy, levitates and disintegrates into dust as he teleports away — energy strands, purple Pyro fire and 867k dust particles in a procedural ruined temple. Includes a layer-by-layer breakdown.",
+    year: "2026",
+  },
+  {
+    id: 7,
+    title: "MOUNTAIN RIVER RAPIDS",
+    category: "WATER & FLUIDS",
+    software: ["Houdini", "Karma", "Nuke"],
+    youtubeId: "B4c9qWHtxd8",
+    desc: "Mountain river rapids — a 6.4M-particle FLIP simulation with foam, spray and bubbles over scanned rocks, rendered in layers with Karma XPU. Includes a layer-by-layer breakdown.",
+    year: "2026",
+  },
 ];
 
 const THUMB_QUALITIES = ["maxresdefault", "sddefault", "hqdefault"] as const;
