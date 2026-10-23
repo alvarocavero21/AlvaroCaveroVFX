@@ -4,14 +4,14 @@ import Providers from "@/components/Providers";
 import ThemeToggle from "@/components/ui/theme-toggle";
 
 export const metadata: Metadata = {
-  title: "Alvaro Cavero | VFX Artist",
+  title: "Alvaro VFX | Alvaro Cavero, FX Artist",
   description:
-    "VFX Artist based in Madrid. Specializing in photorealistic destruction, fire, water simulation and cinematic rendering for cinema and games. Houdini · Karma · Nuke · Unreal Engine.",
+    "Alvaro Cavero, FX Artist based in Madrid. Specializing in photorealistic destruction, fire, water simulation and cinematic rendering for cinema and games. Houdini · Karma · Nuke · Unreal Engine.",
   keywords: ["VFX Artist", "Houdini", "Karma XPU", "Nuke", "Unreal Engine", "Pyro", "FLIP Fluids", "Destruction VFX"],
   authors: [{ name: "Alvaro Cavero" }],
   openGraph: {
-    title: "Alvaro Cavero | VFX Artist",
-    description: "Photorealistic VFX for cinema and games.",
+    title: "Alvaro VFX | Alvaro Cavero, FX Artist",
+    description: "Photorealistic FX for cinema and games: destruction, pyro and FLIP water in Houdini.",
     type: "website",
   },
 };

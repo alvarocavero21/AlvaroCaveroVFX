@@ -285,7 +285,7 @@ export default function Hero() {
               transition={{ duration: 1.2, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: "clamp(80px, 12vw, 160px)",
+                fontSize: "clamp(56px, 12vw, 160px)",
                 color: "var(--accent)",
                 textTransform: "uppercase",
                 textAlign: "center",
@@ -293,7 +293,7 @@ export default function Hero() {
                 lineHeight: 0.9,
               }}
             >
-              {"COQUE".split("").map((ch, i) => (
+              {"ALVARO VFX".split("").map((ch, i) => (
                 <motion.span
                   key={i}
                   initial={{ y: "110%", rotate: 8, opacity: 0 }}
@@ -333,10 +333,10 @@ export default function Hero() {
             }}
           >
             <span style={{ fontVariationSettings: "'wght' 100" }}>
-              <SplitText text="VFX" stagger={0.03} charDuration={0.4} delay={1000} triggerOnMount />
+              <SplitText text="ALVARO CAVERO" stagger={0.03} charDuration={0.4} delay={1000} triggerOnMount />
             </span>
             <span style={{ fontVariationSettings: "'wght' 400", animation: "weight-pulse 3s ease-in-out 1.8s infinite" }}>
-              <SplitText text="ARTIST" stagger={0.03} charDuration={0.4} delay={1200} triggerOnMount />
+              <SplitText text="FX ARTIST" stagger={0.03} charDuration={0.4} delay={1200} triggerOnMount />
             </span>
           </p>
           {/* Animated gold line under subtitle */}

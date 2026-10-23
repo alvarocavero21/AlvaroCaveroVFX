@@ -45,7 +45,7 @@ export default function Navbar() {
           style={{ fontFamily: "'Bebas Neue', sans-serif", color: "var(--text-primary)" }}
           className="text-2xl tracking-[0.2em] hover:text-gold transition-colors duration-300"
         >
-          AC<span className="text-gold">VFX</span>
+          ALVARO <span className="text-gold">VFX</span>
         </button>
 
         {/* Desktop */}

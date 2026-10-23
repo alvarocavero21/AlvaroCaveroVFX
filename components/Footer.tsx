@@ -9,13 +9,13 @@ export default function Footer() {
           className="text-xl tracking-[0.2em]"
           style={{ fontFamily: "'Bebas Neue', sans-serif", color: "var(--text-primary)" }}
         >
-          AC<span style={{ color: "var(--accent)" }}>VFX</span>
+          ALVARO <span style={{ color: "var(--accent)" }}>VFX</span>
         </span>
         <p
           className="text-[10px] tracking-wider"
           style={{ fontFamily: "Inter, sans-serif", color: "var(--text-muted)" }}
         >
-          © 2025 Coque VFX. All rights reserved.
+          © {new Date().getFullYear()} Alvaro Cavero · Alvaro VFX. All rights reserved.
         </p>
         <div className="flex gap-6">
           {["Showreel", "Work", "Contact"].map((item) => (
