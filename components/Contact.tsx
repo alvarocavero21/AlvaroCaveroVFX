@@ -52,7 +52,7 @@ function MagneticLink({ href, target, rel, children, className }: {
       target={target}
       rel={rel}
       className={className}
-      style={{ transition: "transform 0.35s cubic-bezier(0.23,1,0.32,1)", display: "block" }}
+      style={{ transition: "transform 0.35s cubic-bezier(0.23,1,0.32,1)" }}
     >
       {children}
     </a>
@@ -67,6 +67,16 @@ const socials = [
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.4} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
+    label: "CV",
+    value: "Download CV (PDF)",
+    href: "/Alvaro_Cavero_CV_VFX.pdf",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.4} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14" />
       </svg>
     ),
   },
@@ -125,7 +135,7 @@ export default function Contact() {
             initial={{ opacity: 0, x: -30 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="lg:col-span-2 flex justify-center lg:justify-end"
+            className="lg:col-span-2 hidden sm:flex justify-center lg:justify-end"
           >
             <div className="relative w-[260px] h-[260px] lg:w-[380px] lg:h-[380px]">
               {/* Gold glow ring */}
@@ -208,7 +218,7 @@ export default function Contact() {
             </div>
 
             {/* Social links */}
-            <div className="space-y-3 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
               {socials.map((s) => (
                 <MagneticLink
                   key={s.label}

@@ -369,7 +369,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.65 }}
-            className="mt-10 flex items-center justify-center"
+            className="mt-10 flex flex-wrap items-center justify-center gap-4"
           >
             <MagneticWrapper>
               <button
@@ -382,6 +382,20 @@ export default function Hero() {
                 </svg>
                 Watch Showreel
               </button>
+            </MagneticWrapper>
+            <MagneticWrapper>
+              <a
+                href="/Alvaro_Cavero_CV_VFX.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-press flex items-center gap-3 text-xs tracking-[0.3em] uppercase border border-white/15 hover:border-gold/60 text-muted hover:text-gold px-8 py-4 transition-all duration-300"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14" />
+                </svg>
+                Download CV
+              </a>
             </MagneticWrapper>
           </motion.div>
 
