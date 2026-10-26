@@ -20,19 +20,46 @@ export default function Showreel() {
 
   // On mousedown: briefly drop pointer-events so the click reaches YouTube,
   // then restore so the overlay can keep capturing wheel events.
+  // Touch: the whole tap (touch + compat mouse events + click) is dispatched to the overlay, so the
+  // 700ms trick never let a tap reach the player. A tap now unlocks the player until the user
+  // leaves the section; swipes still land on the overlay and keep snapping.
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
-    const handleMouseDown = () => {
+    const handlePointerDown = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
       overlay.style.pointerEvents = "none";
       if (restoreRef.current) clearTimeout(restoreRef.current);
       restoreRef.current = setTimeout(() => {
         if (overlayRef.current) overlayRef.current.style.pointerEvents = "auto";
       }, 700);
     };
-    overlay.addEventListener("mousedown", handleMouseDown);
+
+    let touchX = 0;
+    let touchY = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      touchX = e.touches[0].clientX;
+      touchY = e.touches[0].clientY;
+    };
+    const handleTouchEnd = (e: TouchEvent) => {
+      const t = e.changedTouches[0];
+      if (Math.abs(t.clientX - touchX) < 10 && Math.abs(t.clientY - touchY) < 10) {
+        overlay.style.pointerEvents = "none";
+      }
+    };
+    const handleSection = (e: Event) => {
+      if ((e as CustomEvent<number>).detail !== 1) overlay.style.pointerEvents = "auto";
+    };
+
+    overlay.addEventListener("pointerdown", handlePointerDown);
+    overlay.addEventListener("touchstart", handleTouchStart, { passive: true });
+    overlay.addEventListener("touchend", handleTouchEnd, { passive: true });
+    window.addEventListener("snap-section", handleSection);
     return () => {
-      overlay.removeEventListener("mousedown", handleMouseDown);
+      overlay.removeEventListener("pointerdown", handlePointerDown);
+      overlay.removeEventListener("touchstart", handleTouchStart);
+      overlay.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("snap-section", handleSection);
       if (restoreRef.current) clearTimeout(restoreRef.current);
     };
   }, []);
@@ -63,7 +90,7 @@ export default function Showreel() {
     <section
       id="showreel"
       ref={ref}
-      className="relative h-screen overflow-hidden flex flex-col pt-20 pb-8"
+      className="relative h-full overflow-hidden flex flex-col pt-20 pb-8"
       style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}
     >
       <BGPattern variant="grid" mask="fade-edges" size={32} fill="rgba(200, 169, 110, 0.15)" />
@@ -124,7 +151,7 @@ export default function Showreel() {
               style={{ boxShadow: "0 40px 120px rgba(0,0,0,0.8)" }}
             >
               {/* Overlay: captures wheel events (pointer-events:auto) for snap-scroll;
-                  drops to none on mousedown for 700ms so YouTube clicks pass through */}
+                  drops to none on mousedown for 700ms so YouTube clicks pass through (touch: see effect above) */}
               <div
                 ref={overlayRef}
                 className="absolute inset-0"

@@ -333,10 +333,18 @@ export function EmberField({ active, isLight, onUnavailable }: Props) {
     pu.uBurst     = { value: burst };
     pu.uBurstFrac = vu.uBurstFrac;
 
+    // renderer.dispose() alone keeps the WebGL context alive until GC; browsers cap live contexts (~16),
+    // so remounts (StrictMode, HMR, WebGL fallback retries) eventually start losing the oldest one.
+    const releaseRenderer = () => {
+      renderer.dispose();
+      renderer.forceContextLoss();
+      canvas.remove();
+    };
+
     const initError = gpu.init();
     if (initError !== null) {
-      renderer.dispose();
-      canvas.remove();
+      gpu.dispose(); // init() may already have allocated render targets; also frees pos0/vel0
+      releaseRenderer();
       fallbackRef.current?.();
       return;
     }
@@ -372,7 +380,8 @@ export function EmberField({ active, isLight, onUnavailable }: Props) {
     points.frustumCulled = false;
     scene.add(points);
 
-    const draw = () => renderer.render(scene, camera);
+    let lost = false; // set by webglcontextlost below
+    const draw = () => { if (!lost) renderer.render(scene, camera); };
 
     const applyTheme = (light: boolean) => {
       const p = light ? PALETTE.light : PALETTE.dark;
@@ -403,18 +412,29 @@ export function EmberField({ active, isLight, onUnavailable }: Props) {
     const ro = new ResizeObserver(resize);
     ro.observe(container);
 
+    // Context lost (GPU reset, mobile Safari backgrounding, too many contexts): stop drawing into a dead
+    // context and let the parent switch to its non-WebGL fallback, which unmounts and cleans this up.
+    const onContextLost = (e: Event) => {
+      e.preventDefault();
+      lost = true;
+      fallbackRef.current?.();
+    };
+    canvas.addEventListener("webglcontextlost", onContextLost);
+
+    const disposeAll = () => {
+      themeRef.current = null;
+      ro.disconnect();
+      canvas.removeEventListener("webglcontextlost", onContextLost);
+      gpu.dispose();
+      geometry.dispose();
+      material.dispose();
+      releaseRenderer();
+    };
+
     // Reduced motion: a single still frame of embers, no simulation and no pointer reaction
     if (reduced) {
       draw();
-      return () => {
-        themeRef.current = null;
-        ro.disconnect();
-        gpu.dispose();
-        geometry.dispose();
-        material.dispose();
-        renderer.dispose();
-        canvas.remove();
-      };
+      return disposeAll;
     }
 
     // ── Pointer → world space ──
@@ -452,7 +472,7 @@ export function EmberField({ active, isLight, onUnavailable }: Props) {
     let time = 0;
 
     const tick = (now: number) => {
-      if (!activeRef.current || document.hidden) { running = false; return; }
+      if (lost || !activeRef.current || document.hidden) { running = false; return; }
       raf = requestAnimationFrame(tick);
 
       const dt = Math.min((now - last) / 1000, 1 / 30);
@@ -488,7 +508,7 @@ export function EmberField({ active, isLight, onUnavailable }: Props) {
     };
 
     const start = () => {
-      if (running || !activeRef.current || document.hidden) return;
+      if (lost || running || !activeRef.current || document.hidden) return;
       running = true;
       last = performance.now();
       raf = requestAnimationFrame(tick);
@@ -502,17 +522,11 @@ export function EmberField({ active, isLight, onUnavailable }: Props) {
       cancelAnimationFrame(raf);
       running = false;
       resumeRef.current = null;
-      themeRef.current = null;
-      ro.disconnect();
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerdown", onDown);
       document.documentElement.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("visibilitychange", onVisibility);
-      gpu.dispose();
-      geometry.dispose();
-      material.dispose();
-      renderer.dispose();
-      canvas.remove();
+      disposeAll();
     };
   }, []);
 

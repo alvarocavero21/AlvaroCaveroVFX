@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
+const FINE_POINTER = "(hover: hover) and (pointer: fine)";
+
 export default function CustomCursor() {
   const dotRef   = useRef<HTMLDivElement>(null);
   const ringRef  = useRef<HTMLDivElement>(null);
@@ -15,7 +17,10 @@ export default function CustomCursor() {
     const labelEl = labelRef.current;
     if (!dot || !ringEl || !labelEl) return;
 
-    if (window.matchMedia("(hover: none)").matches) {
+    // Same query as the `cursor: none` rule in globals.css: only a real mouse/trackpad gets the custom cursor.
+    // "(hover: none)" alone missed touch devices that report hover support (some Android phones, stylus tablets),
+    // which then showed the dot stuck where the last tap emitted a synthetic mousemove.
+    if (!window.matchMedia(FINE_POINTER).matches) {
       dot.style.display    = "none";
       ringEl.style.display = "none";
       return;
@@ -77,9 +82,17 @@ export default function CustomCursor() {
       ringEl.style.opacity = "1";
     };
 
+    const timers = new Set<ReturnType<typeof setTimeout>>();
+    const later = (fn: () => void, ms: number) => {
+      const t = setTimeout(() => { timers.delete(t); fn(); }, ms);
+      timers.add(t);
+    };
+
+    const ripples = new Set<HTMLDivElement>();
+
     const onDown = (e: MouseEvent) => {
       dot.style.transform = "translate(-50%,-50%) scale(2)";
-      setTimeout(() => { dot.style.transform = "translate(-50%,-50%) scale(1)"; }, 200);
+      later(() => { dot.style.transform = "translate(-50%,-50%) scale(1)"; }, 200);
 
       const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#c8a96e";
       const ripple = document.createElement("div");
@@ -97,7 +110,8 @@ export default function CustomCursor() {
         "animation:cursor-ripple 0.4s ease-out forwards",
       ].join(";");
       document.body.appendChild(ripple);
-      setTimeout(() => ripple.remove(), 420);
+      ripples.add(ripple);
+      later(() => { ripple.remove(); ripples.delete(ripple); }, 420);
     };
 
     window.addEventListener("mousemove",    onMove,  { passive: true });
@@ -123,6 +137,8 @@ export default function CustomCursor() {
 
     return () => {
       cancelAnimationFrame(raf);
+      timers.forEach(clearTimeout);
+      ripples.forEach((r) => r.remove());
       window.removeEventListener("mousemove",    onMove);
       window.removeEventListener("mousedown",    onDown);
       document.removeEventListener("mouseleave", onLeave);

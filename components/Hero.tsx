@@ -143,6 +143,8 @@ function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
     >
       <div style={{ width: 70, height: 70 }}>
         {sw.logoSrc ? (
+          // 70px local logos recoloured with CSS filters; next/image would only pass SVGs through unoptimised
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={sw.logoSrc}
             alt={sw.name}
@@ -219,7 +221,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
+    <section id="hero" className="relative h-full flex items-center justify-center overflow-hidden" style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}>
 
       {/* Faint heat glow at the base the embers rise from */}
       <div
