@@ -276,7 +276,7 @@ export default function Hero() {
                 src={isLight ? "/brand/logo_hero_claro.webp" : "/brand/logo_hero_oscuro.webp"}
                 alt="ACJ Studios"
                 width={1600}
-                height={891}
+                height={844}
                 className="logo-glow-idle"
                 style={{ width: "clamp(280px, 50vw, 680px)", height: "auto", display: "block", margin: "0 auto" }}
               />
