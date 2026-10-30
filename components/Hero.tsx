@@ -323,7 +323,7 @@ export default function Hero() {
           >
             <div className="w-20 h-px bg-gold opacity-60" />
             <p className="text-xs tracking-[0.25em] text-white/50" style={{ fontFamily: "Inter, sans-serif" }}>
-              Houdini&nbsp;·&nbsp;Karma&nbsp;·&nbsp;Nuke&nbsp;·&nbsp;Maya&nbsp;·&nbsp;Unreal Engine
+              Houdini&nbsp;·&nbsp;Nuke&nbsp;·&nbsp;Maya&nbsp;·&nbsp;Unreal Engine
             </p>
           </motion.div>
 
