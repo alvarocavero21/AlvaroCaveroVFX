@@ -5,13 +5,13 @@ import ThemeToggle from "@/components/ui/theme-toggle";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://alvaro-cavero-vfx.vercel.app"),
-  title: "ACJ Studios | Alvaro Cavero, FX Artist",
+  title: "ACJ Studios | Alvaro Cavero, VFX Artist",
   description:
-    "Alvaro Cavero, FX Artist based in Madrid. Specializing in photorealistic destruction, fire, water simulation and cinematic rendering for cinema and games. Houdini · Karma · Nuke · Unreal Engine.",
+    "Alvaro Cavero, VFX Artist based in Madrid. Specializing in photorealistic destruction, fire, water simulation and cinematic rendering for cinema and games. Houdini · Karma · Nuke · Unreal Engine.",
   keywords: ["VFX Artist", "Houdini", "Karma XPU", "Nuke", "Unreal Engine", "Pyro", "FLIP Fluids", "Destruction VFX"],
   authors: [{ name: "Alvaro Cavero" }],
   openGraph: {
-    title: "ACJ Studios | Alvaro Cavero, FX Artist",
+    title: "ACJ Studios | Alvaro Cavero, VFX Artist",
     description: "Photorealistic FX for cinema and games: destruction, pyro and FLIP water in Houdini.",
     type: "website",
   },

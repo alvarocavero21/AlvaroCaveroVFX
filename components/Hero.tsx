@@ -299,7 +299,7 @@ export default function Hero() {
               <SplitText text="ALVARO CAVERO" stagger={0.03} charDuration={0.4} delay={1000} triggerOnMount />
             </span>
             <span style={{ fontVariationSettings: "'wght' 400", animation: "weight-pulse 3s ease-in-out 1.8s infinite" }}>
-              <SplitText text="FX ARTIST" stagger={0.03} charDuration={0.4} delay={1200} triggerOnMount />
+              <SplitText text="VFX ARTIST" stagger={0.03} charDuration={0.4} delay={1200} triggerOnMount />
             </span>
           </p>
           {/* Animated gold line under subtitle */}
