@@ -66,7 +66,7 @@ export default function Showreel() {
       className="relative h-screen overflow-hidden flex flex-col pt-20 pb-8"
       style={{ backgroundColor: "var(--bg-primary)", transition: "background-color 0.4s ease" }}
     >
-      <BGPattern variant="grid" mask="fade-edges" size={32} fill="rgba(200, 169, 110, 0.15)" />
+      <BGPattern variant="grid" mask="fade-edges" size={32} fill="rgba(90, 202, 134, 0.15)" />
 
       {/* Top border line */}
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
@@ -115,7 +115,7 @@ export default function Showreel() {
           <div className="absolute bottom-0 left-0 w-5 h-5 border-b border-l border-gold/50 z-20 pointer-events-none" />
           <div className="absolute bottom-0 right-0 w-5 h-5 border-b border-r border-gold/50 z-20 pointer-events-none" />
 
-          <SpotlightCard glowColor="blue" customSize className="w-full h-full">
+          <SpotlightCard glowColor="green" customSize className="w-full h-full">
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}

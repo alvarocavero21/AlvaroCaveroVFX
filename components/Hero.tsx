@@ -7,6 +7,7 @@ import MagneticWrapper from "./MagneticWrapper";
 import { SplitText } from "@/components/ui/split-text";
 import { useActiveSection } from "@/components/ui/variable-text";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useIntroDone } from "@/lib/intro";
 
 const FloatingPaths = dynamic<{ position: number }>(
   () => import("@/components/ui/background-paths").then((m) => ({ default: m.FloatingPaths })),
@@ -118,10 +119,10 @@ function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
     ? "transform 0.1s ease, box-shadow 0.1s ease"
     : "transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1)";
 
-  // Converts any logo to gold on dark bg, dark on light bg
+  // Converts any logo to the logo green on dark bg, dark on light bg
   const darkFilter = hovered
-    ? "brightness(0) invert(1) sepia(1) saturate(1.5) hue-rotate(5deg)"
-    : "brightness(0) invert(1) sepia(1) saturate(1.5) hue-rotate(5deg) opacity(0.65)";
+    ? "brightness(0) invert(1) sepia(1) saturate(2.6) hue-rotate(95deg) brightness(0.92)"
+    : "brightness(0) invert(1) sepia(1) saturate(2.6) hue-rotate(95deg) brightness(0.92) opacity(0.65)";
   const lightFilter = hovered
     ? "brightness(0) opacity(0.65)"
     : "brightness(0) opacity(0.35)";
@@ -138,7 +139,7 @@ function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
         transition,
         transformStyle: "preserve-3d",
         willChange: hovered ? "transform" : "auto",
-        boxShadow: hovered ? "0 20px 40px rgba(200,169,110,0.4)" : "0 0 0 rgba(0,0,0,0)",
+        boxShadow: hovered ? "0 20px 40px rgba(var(--accent-rgb),0.4)" : "0 0 0 rgba(0,0,0,0)",
       }}
     >
       <div style={{ width: 70, height: 70 }}>
@@ -159,7 +160,7 @@ function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
             style={{
               width: "100%",
               height: "100%",
-              color: "#c8a96e",
+              color: "var(--accent)",
               opacity: hovered ? 1.0 : 0.70,
               filter: hovered ? "brightness(1.3)" : "brightness(1)",
               transition: hovered ? "opacity 0.1s ease, filter 0.1s ease" : "opacity 0.4s ease, filter 0.4s ease",
@@ -183,32 +184,14 @@ function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
   );
 }
 
-// ── Per-letter text-shadow glow levels ────────────────────────────────────────
-function makeGlow(r: number, g: number, b: number) {
-  return {
-    full: `0 0 30px rgba(${r},${g},${b},0.8), 0 0 60px rgba(${r},${g},${b},0.4), 0 0 100px rgba(${r},${g},${b},0.2)`,
-    half: `0 0 30px rgba(${r},${g},${b},0.4), 0 0 60px rgba(${r},${g},${b},0.2), 0 0 100px rgba(${r},${g},${b},0.1)`,
-    low:  `0 0 20px rgba(${r},${g},${b},0.08), 0 0 40px rgba(${r},${g},${b},0.04)`,
-  };
-}
-
-function getLetterGlow(i: number, active: number | null, isLight: boolean): string | undefined {
-  if (active === null) return undefined; // idle glow is handled by CSS keyframe animation
-  const rgb = isLight ? [184, 148, 58] : [200, 169, 110];
-  const g = makeGlow(rgb[0], rgb[1], rgb[2]);
-  const d = Math.abs(i - active);
-  if (d === 0) return g.full;
-  if (d === 1) return g.half;
-  return g.low;
-}
-
 export default function Hero() {
   const [showHint, setShowHint] = useState(true);
-  const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [noWebGL, setNoWebGL] = useState(false);
   const section = useActiveSection();
   const { theme } = useTheme();
   const isLight = theme === "light";
+  // entrance animations wait for the ACJ STUDIOS intro (lib/intro.ts)
+  const introDone = useIntroDone();
 
   useEffect(() => {
     const handle = (e: Event) => {
@@ -273,6 +256,7 @@ export default function Hero() {
         ))}
       </div>
 
+      {introDone && (
       <div className="relative z-20 text-center px-6 select-none">
 
         {/* ── Name group ── */}
@@ -280,43 +264,22 @@ export default function Hero() {
           <div style={{ opacity: section === 0 ? 1 : 0.08, transition: "opacity 0.7s ease" }}>
             <motion.h1
               id="coque-title"
-              initial={{ opacity: 0, letterSpacing: "0.5em", y: 20 }}
-              animate={{ opacity: 1, letterSpacing: "0.15em", y: 0 }}
-              transition={{ duration: 1.2, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-              style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: "clamp(56px, 12vw, 160px)",
-                color: "var(--accent)",
-                textTransform: "uppercase",
-                textAlign: "center",
-                margin: "0 auto",
-                lineHeight: 0.9,
-              }}
+              initial={{ opacity: 0, y: 24, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 1.2, delay: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              whileHover={{ scale: 1.02, transition: { type: "spring", stiffness: 300, damping: 20 } }}
+              style={{ margin: "0 auto", lineHeight: 0 }}
             >
-              {"ALVARO VFX".split("").map((ch, i) => (
-                <motion.span
-                  key={i}
-                  initial={{ y: "110%", rotate: 8, opacity: 0 }}
-                  animate={{ y: 0, rotate: 0, opacity: 1 }}
-                  transition={{
-                    duration: 0.8,
-                    delay: 0.3 + i * 0.06,
-                    ease: [0.23, 1, 0.32, 1],
-                  }}
-                  onHoverStart={() => setActiveIdx(i)}
-                  onHoverEnd={() => setActiveIdx(null)}
-                  whileHover={{ y: -10, color: isLight ? "#1a1a1a" : "#ffffff", transition: { type: "spring", stiffness: 500, damping: 18 } }}
-                  className={activeIdx === null ? (isLight ? "letter-glow-idle-light" : "letter-glow-idle") : ""}
-                  style={{
-                    display: "inline-block",
-                    cursor: "default",
-                    ...(activeIdx !== null ? { textShadow: getLetterGlow(i, activeIdx, isLight) } : {}),
-                    transition: "text-shadow 0.2s ease",
-                  }}
-                >
-                  {ch}
-                </motion.span>
-              ))}
+              {/* ACJ STUDIOS logo (public/brand): STUDIOS light on the dark theme, dark on the light one.
+                  id kept on the h1: wind-tunnel-smoke locates the title by it */}
+              <img
+                src={isLight ? "/brand/logo_hero_claro.webp" : "/brand/logo_hero_oscuro.webp"}
+                alt="ACJ Studios"
+                width={1600}
+                height={891}
+                className="logo-glow-idle"
+                style={{ width: "clamp(280px, 50vw, 680px)", height: "auto", display: "block", margin: "0 auto" }}
+              />
             </motion.h1>
           </div>
           <p
@@ -416,7 +379,7 @@ export default function Hero() {
         </motion.div>
 
       </div>
-
+      )}
       {/* Scroll hint — fades out once user navigates away */}
       <motion.div
         initial={{ opacity: 0 }}

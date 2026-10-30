@@ -292,7 +292,7 @@ function ProjectCard({ p, i }: { p: PlaceholderProject; i: number }) {
   const { ref, inView } = useInView({ threshold: 0.08, triggerOnce: true });
 
   return (
-    <SpotlightCard glowColor="blue" customSize className="w-full">
+    <SpotlightCard glowColor="green" customSize className="w-full">
       <motion.article
         ref={ref}
         initial={{ opacity: 0, scale: 0.95, y: 24 }}
@@ -321,7 +321,7 @@ function ProjectCard({ p, i }: { p: PlaceholderProject; i: number }) {
             className="absolute pointer-events-none"
             style={{ inset: 10, animation: "border-spin 14s linear infinite" }}
           >
-            <div style={{ width: "100%", height: "100%", border: "1px dashed rgba(200,169,110,0.22)" }} />
+            <div style={{ width: "100%", height: "100%", border: "1px dashed rgba(var(--accent-rgb),0.22)" }} />
           </div>
 
           <div className="absolute top-3 left-3">
@@ -340,7 +340,7 @@ function ProjectCard({ p, i }: { p: PlaceholderProject; i: number }) {
 
           <span
             className="text-[10px] tracking-[0.45em] uppercase"
-            style={{ fontFamily: "Inter, sans-serif", color: "#c8a96e", animation: "cs-pulse 2.4s ease-in-out infinite" }}
+            style={{ fontFamily: "Inter, sans-serif", color: "var(--accent)", animation: "cs-pulse 2.4s ease-in-out infinite" }}
           >
             Coming Soon
           </span>
@@ -425,13 +425,13 @@ function EnergyStreamsCanvas() {
 
     // Reduced to 7 particles per stream × 7 streams ≈ 60 total (was ~120)
     const STREAMS: StreamDef[] = [
-      { yFrac: 0.12, amplitude: 38, frequency: 1.4, speed: 0.00110, color: "200,169,110", count: 8 },
+      { yFrac: 0.12, amplitude: 38, frequency: 1.4, speed: 0.00110, color: "90,202,134", count: 8 },
       { yFrac: 0.25, amplitude: 55, frequency: 1.1, speed: 0.00085, color: "255,255,255", count: 8 },
       { yFrac: 0.38, amplitude: 42, frequency: 1.7, speed: 0.00130, color: "180,100,50",  count: 8 },
-      { yFrac: 0.50, amplitude: 60, frequency: 0.9, speed: 0.00070, color: "200,169,110", count: 9 },
+      { yFrac: 0.50, amplitude: 60, frequency: 0.9, speed: 0.00070, color: "90,202,134", count: 9 },
       { yFrac: 0.62, amplitude: 35, frequency: 1.5, speed: 0.00100, color: "255,255,255", count: 8 },
       { yFrac: 0.74, amplitude: 50, frequency: 1.2, speed: 0.00095, color: "180,100,50",  count: 8 },
-      { yFrac: 0.86, amplitude: 44, frequency: 1.6, speed: 0.00120, color: "200,169,110", count: 8 },
+      { yFrac: 0.86, amplitude: 44, frequency: 1.6, speed: 0.00120, color: "90,202,134", count: 8 },
     ];
 
     const phaseOffsets = STREAMS.map(() => rand(0, Math.PI * 2));
@@ -495,7 +495,7 @@ function EnergyStreamsCanvas() {
         const baseAlpha = 0.25 + headness * 0.60;
 
         let alpha: number;
-        if (s.color === "200,169,110") {
+        if (s.color === "90,202,134") {
           alpha = baseAlpha * 0.9;
         } else if (s.color === "255,255,255") {
           alpha = baseAlpha * 0.55;

@@ -13,16 +13,17 @@
   --bg-nav-mobile:     rgba(8, 8, 8, 0.95);
   --text-primary:      #ffffff;
   --text-muted:        #555555;
-  --accent:            #c8a96e;
-  --accent-rgb:        200, 169, 110;
+  /* accent = the green of the ACJ STUDIOS logo (the tiger's eyes) */
+  --accent:            #5aca86;
+  --accent-rgb:        90, 202, 134;
   --border:            rgba(255, 255, 255, 0.06);
-  --border-gold-faint: rgba(200, 169, 110, 0.20);
+  --border-gold-faint: rgba(90, 202, 134, 0.20);
   --grain-opacity:     0.6;
   --ease-out:          cubic-bezier(0.23, 1, 0.32, 1);
 
   /* legacy aliases for backward compat */
   --bg:    #080808;
-  --gold:  #c8a96e;
+  --gold:  #5aca86;
   --white: #ffffff;
   --muted: #555555;
 }
@@ -38,14 +39,15 @@ html.light {
   --bg-nav-mobile:     rgba(212, 208, 200, 0.97);
   --text-primary:      #1a1a1a;
   --text-muted:        #5a5652;
-  --accent:            #b8943a;
-  --accent-rgb:        184, 148, 58;
+  /* darker logo green: the bright one has too little contrast on the light background */
+  --accent:            #2e9e62;
+  --accent-rgb:        46, 158, 98;
   --border:            rgba(0, 0, 0, 0.10);
-  --border-gold-faint: rgba(184, 148, 58, 0.28);
+  --border-gold-faint: rgba(46, 158, 98, 0.28);
   --grain-opacity:     0.18;
 
   --bg:    #d4d0c8;
-  --gold:  #b8943a;
+  --gold:  #2e9e62;
   --white: #1a1a1a;
   --muted: #5a5652;
 }
@@ -227,7 +229,7 @@ html.light .border-white\/5                             { border-color: var(--bo
 html.light .border-white\/\[0\.06\]                    { border-color: var(--border) !important; }
 html.light .border-white\/10                            { border-color: rgba(0,0,0,0.12) !important; }
 html.light .border-white\/8                             { border-color: rgba(0,0,0,0.10) !important; }
-html.light .hover\:border-gold\/30:hover               { border-color: rgba(184,148,58,0.30) !important; }
+html.light .hover\:border-gold\/30:hover               { border-color: rgba(var(--accent-rgb),0.30) !important; }
 html.light .hover\:text-white\/60:hover                { color: rgba(26,26,26,0.70) !important; }
 
 /* Light mode: section backgrounds */
@@ -281,13 +283,20 @@ body::after {
 
 /* ── COQUE title — idle glow pulse ─────────────────────────────────────────── */
 @keyframes letter-glow-pulse {
-  from { text-shadow: 0 0 40px rgba(200,169,110,0.3); }
-  to   { text-shadow: 0 0 80px rgba(200,169,110,0.8); }
+  from { text-shadow: 0 0 40px rgba(var(--accent-rgb),0.3); }
+  to   { text-shadow: 0 0 80px rgba(var(--accent-rgb),0.8); }
 }
 @keyframes letter-glow-pulse-light {
-  from { text-shadow: 0 0 40px rgba(184,148,58,0.3); }
-  to   { text-shadow: 0 0 80px rgba(184,148,58,0.8); }
+  from { text-shadow: 0 0 40px rgba(var(--accent-rgb),0.3); }
+  to   { text-shadow: 0 0 80px rgba(var(--accent-rgb),0.8); }
 }
+
+/* ── Hero logo — slow green glow, like the tiger's eyes ───────────────────── */
+@keyframes logo-glow-pulse {
+  from { filter: drop-shadow(0 0 18px rgba(var(--accent-rgb),0.10)); }
+  to   { filter: drop-shadow(0 0 42px rgba(var(--accent-rgb),0.32)); }
+}
+.logo-glow-idle { animation: logo-glow-pulse 3s ease-in-out infinite alternate; }
 .letter-glow-idle       { animation: letter-glow-pulse       3s ease-in-out infinite alternate; }
 .letter-glow-idle-light { animation: letter-glow-pulse-light 3s ease-in-out infinite alternate; }
 
@@ -301,12 +310,12 @@ body::after {
 input[type="text"]:focus,
 input[type="email"]:focus,
 textarea:focus {
-  box-shadow: 0 0 0 1px rgba(200, 169, 110, 0.22), 0 0 24px rgba(200, 169, 110, 0.07);
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.22), 0 0 24px rgba(var(--accent-rgb), 0.07);
 }
 html.light input[type="text"]:focus,
 html.light input[type="email"]:focus,
 html.light textarea:focus {
-  box-shadow: 0 0 0 1px rgba(184, 148, 58, 0.30), 0 0 20px rgba(184, 148, 58, 0.09);
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.30), 0 0 20px rgba(var(--accent-rgb), 0.09);
 }
 
 /* ── Utility ──────────────────────────────────────────────────────────────── */

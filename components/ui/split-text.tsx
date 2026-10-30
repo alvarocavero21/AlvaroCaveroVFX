@@ -239,7 +239,7 @@ export function SplitScramble({
           key={i}
           style={{
             display: char === " " ? "inline" : "inline-block",
-            color: resolved ? "inherit" : "#c8a96e",
+            color: resolved ? "inherit" : "var(--accent)",
             transition: resolved ? "color 0.08s ease" : undefined,
           }}
         >

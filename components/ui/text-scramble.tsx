@@ -86,7 +86,7 @@ export function TextScramble({
         <span
           key={i}
           style={{
-            color: resolved ? "inherit" : "#c8a96e",
+            color: resolved ? "inherit" : "var(--accent)",
             display: char === " " ? "inline" : "inline-block",
             transition: resolved ? "color 0.08s ease" : undefined,
           }}

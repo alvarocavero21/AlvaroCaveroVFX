@@ -143,13 +143,13 @@ export default function Contact() {
                 className="absolute inset-0 rounded-full pointer-events-none"
                 style={{
                   boxShadow:
-                    "0 0 30px rgba(200,169,110,0.20), 0 0 60px rgba(200,169,110,0.08)",
+                    "0 0 30px rgba(var(--accent-rgb),0.20), 0 0 60px rgba(var(--accent-rgb),0.08)",
                 }}
               />
               {/* Circular frame */}
               <div
                 className="relative w-full h-full rounded-full overflow-hidden"
-                style={{ border: "1px solid rgba(200,169,110,0.5)" }}
+                style={{ border: "1px solid rgba(var(--accent-rgb),0.5)" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img

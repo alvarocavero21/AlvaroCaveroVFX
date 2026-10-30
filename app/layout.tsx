@@ -5,13 +5,13 @@ import ThemeToggle from "@/components/ui/theme-toggle";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://alvaro-cavero-vfx.vercel.app"),
-  title: "Alvaro VFX | Alvaro Cavero, FX Artist",
+  title: "ACJ Studios | Alvaro Cavero, FX Artist",
   description:
     "Alvaro Cavero, FX Artist based in Madrid. Specializing in photorealistic destruction, fire, water simulation and cinematic rendering for cinema and games. Houdini · Karma · Nuke · Unreal Engine.",
   keywords: ["VFX Artist", "Houdini", "Karma XPU", "Nuke", "Unreal Engine", "Pyro", "FLIP Fluids", "Destruction VFX"],
   authors: [{ name: "Alvaro Cavero" }],
   openGraph: {
-    title: "Alvaro VFX | Alvaro Cavero, FX Artist",
+    title: "ACJ Studios | Alvaro Cavero, FX Artist",
     description: "Photorealistic FX for cinema and games: destruction, pyro and FLIP water in Houdini.",
     type: "website",
   },
@@ -28,6 +28,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         />
+        {/* ACJ STUDIOS intro (once per visit, skippable). Plain blocking scripts on purpose: they have to hide the
+            page before the first paint. Source: public/acj-intro (generated from the logo, see acj-intro.js) */}
+        <link rel="stylesheet" href="/acj-intro/acj-intro.css" />
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script src="/acj-intro/acj-intro-datos.js" />
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script src="/acj-intro/acj-intro.js" />
       </head>
       <body className="grain bg-bg">
         <Providers>

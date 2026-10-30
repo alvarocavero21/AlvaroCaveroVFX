@@ -1,0 +1,91 @@
+/* Animación de entrada de ACJ STUDIOS (~5 s). La secuencia la lleva acj-intro.js (Web Animations + un canvas para
+   la arena); aquí solo van el estado inicial de cada pieza y el grano de película. Las posiciones de las piezas
+   salen de acj-intro-datos.js (generado desde el PDF del logo por scripts/web_capas.py). */
+
+:root {
+  --acj-fondo: #000;
+  --acj-verde: #5aca86;
+  --acj-ancho: min(80vw, 900px);
+}
+
+/* mientras dura la intro la página no se ve ni hace scroll (la capa sí: visibility se puede reactivar en un hijo) */
+html.acj-intro-activa { background: var(--acj-fondo); overflow: hidden; }
+html.acj-intro-activa body { visibility: hidden; }
+
+.acj-intro {
+  visibility: visible;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--acj-fondo);
+  cursor: pointer;
+}
+
+.acj-polvo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+.acj-logo { position: relative; width: var(--acj-ancho); aspect-ratio: 1.8946; }
+.acj-escala { position: absolute; inset: 0; }
+.acj-escala > * { position: absolute; }
+.acj-logo img { display: block; }
+
+.acj-franja { overflow: hidden; }
+.acj-franja img { width: 100%; height: 100%; opacity: 0; }
+.acj-acj { opacity: 0; }
+.acj-studios-caja { clip-path: inset(0 100% 0 0); }
+.acj-studios-caja img { width: 100%; height: 100%; }
+
+/* ojos: brillo verde con su punto de luz; en la oscuridad del principio son lo único que se ve */
+.acj-ojo {
+  position: absolute;
+  width: 8%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 42% 40%, rgba(255, 255, 255, 0.95) 0 6%, transparent 9%),
+    radial-gradient(circle, rgba(150, 255, 195, 1) 0%, rgba(90, 202, 134, 0.75) 22%, rgba(90, 202, 134, 0.18) 45%,
+                    transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 0;
+}
+.acj-destello {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 38%, rgba(255, 255, 255, 0.6) 50%, transparent 62%);
+  mix-blend-mode: overlay;
+  transform: translateX(-110%);
+}
+/* línea de luz que va descubriendo STUDIOS */
+.acj-linea {
+  position: absolute;
+  top: -12%;
+  bottom: -12%;
+  left: 0;
+  width: 0.5%;
+  min-width: 2px;
+  translate: -50% 0;
+  background: linear-gradient(transparent, #fff 25%, var(--acj-verde) 50%, #fff 75%, transparent);
+  box-shadow: 0 0 12px 2px rgba(90, 202, 134, 0.8);
+  opacity: 0;
+}
+
+/* grano de película y viñeta */
+.acj-grano, .acj-vineta { position: absolute; inset: -50%; pointer-events: none; }
+.acj-grano {
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: acj-grano 0.5s steps(4) infinite;
+}
+.acj-vineta { inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.75) 100%); }
+@keyframes acj-grano {
+  25% { transform: translate(-3%, 2%); }
+  50% { transform: translate(2%, -4%); }
+  75% { transform: translate(-1%, 3%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .acj-grano { animation: none; }
+}

@@ -6,10 +6,10 @@ const MAX_PARTICLES     = 40;
 const MAX_PARTICLES_LOW = 20;
 
 function getTrailColor(): string {
-  if (typeof document === "undefined") return "#c8a96e";
+  if (typeof document === "undefined") return "#5aca86";
   return getComputedStyle(document.documentElement)
     .getPropertyValue("--accent")
-    .trim() || "#c8a96e";
+    .trim() || "#5aca86";
 }
 
 interface Particle {

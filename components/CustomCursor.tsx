@@ -28,7 +28,7 @@ export default function CustomCursor() {
       expanded = false;
       ringEl.style.width       = "32px";
       ringEl.style.height      = "32px";
-      ringEl.style.borderColor = "rgba(200,169,110,0.6)";
+      ringEl.style.borderColor = "rgba(var(--accent-rgb),0.6)";
       labelEl.style.opacity    = "0";
       dot.style.opacity        = "1";
     };
@@ -81,7 +81,7 @@ export default function CustomCursor() {
       dot.style.transform = "translate(-50%,-50%) scale(2)";
       setTimeout(() => { dot.style.transform = "translate(-50%,-50%) scale(1)"; }, 200);
 
-      const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#c8a96e";
+      const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#5aca86";
       const ripple = document.createElement("div");
       ripple.style.cssText = [
         "position:fixed",
@@ -141,7 +141,7 @@ export default function CustomCursor() {
           width: 4,
           height: 4,
           borderRadius: "50%",
-          backgroundColor: "#c8a96e",
+          backgroundColor: "var(--accent)",
           transform: "translate(-50%,-50%)",
           transition: "transform 0.15s cubic-bezier(0.23,1,0.32,1), opacity 0.2s ease",
           left: -200,
@@ -158,7 +158,7 @@ export default function CustomCursor() {
           width: 32,
           height: 32,
           borderRadius: "50%",
-          border: "1px solid rgba(200,169,110,0.6)",
+          border: "1px solid rgba(var(--accent-rgb),0.6)",
           backgroundColor: "transparent",
           transform: "translate(-50%,-50%)",
           display: "flex",

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useIntroDone } from "@/lib/intro";
 
 const links = [
   { label: "Showreel", section: 1 },
@@ -15,6 +17,7 @@ const goto = (section: number) =>
 export default function Navbar() {
   const [currentSection, setCurrentSection] = useState(0);
   const [open, setOpen] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const onSection = (e: Event) => setCurrentSection((e as CustomEvent<number>).detail);
@@ -28,6 +31,9 @@ export default function Navbar() {
   }, []);
 
   const scrolled = currentSection > 0;
+  // the bar slides in after the ACJ STUDIOS intro, not hidden underneath it (lib/intro.ts)
+  const introDone = useIntroDone();
+  if (!introDone) return null;
 
   return (
     <motion.header
@@ -41,12 +47,18 @@ export default function Navbar() {
     >
       {/* pr-32 leaves room for the fixed theme toggle (layout.tsx) so it never covers Contact / the mobile menu button */}
       <div className="max-w-[1400px] mx-auto pl-8 pr-32 py-5 flex items-center justify-between">
+        {/* ACJ | STUDIOS mark (public/brand, generated from the logo); STUDIOS follows the theme */}
         <button
           onClick={() => goto(0)}
-          style={{ fontFamily: "'Bebas Neue', sans-serif", color: "var(--text-primary)" }}
-          className="text-2xl tracking-[0.2em] hover:text-gold transition-colors duration-300"
+          aria-label="ACJ Studios — home"
+          className="btn-press opacity-90 hover:opacity-100 transition-opacity duration-300"
         >
-          ALVARO <span className="text-gold">VFX</span>
+          <img
+            src={theme === "light" ? "/brand/marca_nav_claro.png" : "/brand/marca_nav_oscuro.png"}
+            alt="ACJ Studios"
+            height={28}
+            style={{ height: 28, width: "auto", display: "block" }}
+          />
         </button>
 
         {/* Desktop */}

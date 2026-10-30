@@ -241,8 +241,8 @@ void main() {
 `;
 
 const PALETTE = {
-  dark:  { hot: "#fff1cf", mid: "#c8a96e", cool: "#7a2a10", alpha: 0.85, blending: THREE.AdditiveBlending },
-  light: { hot: "#6b4a12", mid: "#b8943a", cool: "#5a2a14", alpha: 0.7,  blending: THREE.NormalBlending },
+  dark:  { hot: "#eafff2", mid: "#5aca86", cool: "#0f3b25", alpha: 0.85, blending: THREE.AdditiveBlending },
+  light: { hot: "#0f3b25", mid: "#2e9e62", cool: "#123224", alpha: 0.7,  blending: THREE.NormalBlending },
 };
 
 export function EmberField({ active, isLight, onUnavailable }: Props) {

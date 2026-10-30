@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 // base hue 200 (cyan-blue), spread 60 — yields #60a5fa-style light-blue glow
 const COLOR_MAP: Record<string, string> = {
   blue:  "96, 165, 250",   // #60a5fa
-  gold:  "200, 169, 110",  // site gold
+  gold:  "200, 169, 110",  // old site gold
+  green: "90, 202, 134",   // ACJ STUDIOS logo green
   white: "255, 255, 255",
 };
 
 export interface SpotlightCardProps {
   children: React.ReactNode;
-  glowColor?: "blue" | "gold" | "white";
+  glowColor?: "blue" | "gold" | "green" | "white";
   customSize?: boolean;
   className?: string;
   style?: React.CSSProperties;
