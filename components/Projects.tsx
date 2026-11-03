@@ -26,6 +26,15 @@ type Project = YouTubeProject | PlaceholderProject;
 const projects: Project[] = [
   {
     id: 1,
+    title: "NIGHT ROLLOVER",
+    category: "DESTRUCTION",
+    software: ["Houdini", "Karma"],
+    youtubeId: "TY_tHvEAf8s",
+    desc: "A car skids on a wet street at night, trips over the curb, takes out a road sign and lands on its roof — Vellum sheet metal with plasticity on a Bullet rollover, tempered glass shatter, tire smoke and sparks, rendered in layers with Karma XPU. Includes a pass-by-pass breakdown.",
+    year: "2026",
+  },
+  {
+    id: 2,
     title: "GIDEON TELEPORT",
     category: "CHARACTER FX",
     software: ["Houdini", "Karma", "Nuke"],
@@ -34,7 +43,7 @@ const projects: Project[] = [
     year: "2026",
   },
   {
-    id: 2,
+    id: 3,
     title: "MOUNTAIN RIVER RAPIDS",
     category: "WATER & FLUIDS",
     software: ["Houdini", "Karma", "Nuke"],
@@ -43,7 +52,7 @@ const projects: Project[] = [
     year: "2026",
   },
   {
-    id: 3,
+    id: 4,
     title: "CITY MUSTANG",
     category: "UNREAL ENGINE",
     software: ["Unreal Engine", "Nuke"],
@@ -52,7 +61,7 @@ const projects: Project[] = [
     year: "2026",
   },
   {
-    id: 4,
+    id: 5,
     title: "DINO WATERFALL",
     category: "WATER & FLUIDS",
     software: ["Houdini", "Nuke", "Maya", "Premiere"],
@@ -61,7 +70,7 @@ const projects: Project[] = [
     year: "2026",
   },
   {
-    id: 5,
+    id: 6,
     title: "GROUND DESTRUCTION",
     category: "DESTRUCTION",
     software: ["Houdini", "Karma"],
@@ -70,7 +79,7 @@ const projects: Project[] = [
     year: "2026",
   },
   {
-    id: 6,
+    id: 7,
     title: "NATURE TAKEOVER",
     category: "FX SIMULATION",
     software: ["Houdini", "Nuke"],
@@ -79,7 +88,7 @@ const projects: Project[] = [
     year: "2025",
   },
   {
-    id: 7,
+    id: 8,
     title: "FERRARI AND SHIP COMPO",
     category: "COMPOSITING",
     software: ["Houdini", "Nuke", "Maya"],
