@@ -26,6 +26,24 @@ type Project = YouTubeProject | PlaceholderProject;
 const projects: Project[] = [
   {
     id: 1,
+    title: "FIGHTER JET IN THE RAIN",
+    category: "WATER & FLUIDS",
+    software: ["Houdini", "Karma", "Nuke"],
+    youtubeId: "IB88b5-tjHg",
+    desc: "A fighter jet parked in front of a hangar at night, in heavy rain — rain and splash particles, MPM water running over the aircraft and lightning, rendered in layers with Karma XPU and composited in Nuke with raindrops sliding on the lens. Includes a layer-by-layer breakdown.",
+    year: "2026",
+  },
+  {
+    id: 2,
+    title: "TANK NIGHT BATTLE",
+    category: "FX SIMULATION",
+    software: ["Houdini", "Karma", "Nuke"],
+    youtubeId: "0O51ZQiaxtc",
+    desc: "A tank pushes through the mud at night under fire — MPM mud thrown by the tracks, tracer rounds, a ricochet off the armor, ground impacts and a cannon blast, rendered in layers with Karma XPU and finished in Nuke. Includes a layer-by-layer breakdown.",
+    year: "2026",
+  },
+  {
+    id: 3,
     title: "NIGHT ROLLOVER",
     category: "DESTRUCTION",
     software: ["Houdini", "Karma"],
@@ -34,7 +52,7 @@ const projects: Project[] = [
     year: "2026",
   },
   {
-    id: 2,
+    id: 4,
     title: "GIDEON TELEPORT",
     category: "CHARACTER FX",
     software: ["Houdini", "Karma", "Nuke"],
@@ -43,7 +61,7 @@ const projects: Project[] = [
     year: "2026",
   },
   {
-    id: 3,
+    id: 5,
     title: "MOUNTAIN RIVER RAPIDS",
     category: "WATER & FLUIDS",
     software: ["Houdini", "Karma", "Nuke"],
@@ -52,7 +70,7 @@ const projects: Project[] = [
     year: "2026",
   },
   {
-    id: 4,
+    id: 6,
     title: "CITY MUSTANG",
     category: "UNREAL ENGINE",
     software: ["Unreal Engine", "Nuke"],
@@ -61,7 +79,7 @@ const projects: Project[] = [
     year: "2026",
   },
   {
-    id: 5,
+    id: 7,
     title: "DINO WATERFALL",
     category: "WATER & FLUIDS",
     software: ["Houdini", "Nuke", "Maya", "Premiere"],
@@ -70,7 +88,7 @@ const projects: Project[] = [
     year: "2026",
   },
   {
-    id: 6,
+    id: 8,
     title: "GROUND DESTRUCTION",
     category: "DESTRUCTION",
     software: ["Houdini", "Karma"],
@@ -79,7 +97,7 @@ const projects: Project[] = [
     year: "2026",
   },
   {
-    id: 7,
+    id: 9,
     title: "NATURE TAKEOVER",
     category: "FX SIMULATION",
     software: ["Houdini", "Nuke"],
@@ -88,7 +106,7 @@ const projects: Project[] = [
     year: "2025",
   },
   {
-    id: 8,
+    id: 10,
     title: "FERRARI AND SHIP COMPO",
     category: "COMPOSITING",
     software: ["Houdini", "Nuke", "Maya"],
