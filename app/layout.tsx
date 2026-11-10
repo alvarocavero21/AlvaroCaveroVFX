@@ -28,11 +28,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         />
-        {/* ACJ STUDIOS intro (once per visit, skippable). Plain blocking scripts on purpose: they have to hide the
-            page before the first paint. Source: public/acj-intro (generated from the logo, see acj-intro.js) */}
+        {/* ACJ STUDIOS intro v2 (once per visit, skippable, ~1.6 s): embers gather into the logo, which then flies
+            onto the Hero logo while the black burns away. Plain blocking script on purpose: it has to hide the page
+            before the first paint. Source: public/acj-intro/acj-intro.js */}
+        <link rel="preload" as="image" href="/brand/logo_hero_oscuro.webp" />
         <link rel="stylesheet" href="/acj-intro/acj-intro.css" />
-        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script src="/acj-intro/acj-intro-datos.js" />
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script src="/acj-intro/acj-intro.js" />
       </head>

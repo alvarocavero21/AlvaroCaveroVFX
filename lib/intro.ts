@@ -24,3 +24,9 @@ export function useIntroDone() {
 
   return done;
 }
+
+// True when the intro flew its logo onto the Hero logo (public/acj-intro/acj-intro.js sets it right before
+// "acj-intro-fin"): the Hero logo must then appear already in place, without its own entrance animation.
+export function introRelay(): boolean {
+  return typeof window !== "undefined" && (window as unknown as { __acjRelevo?: boolean }).__acjRelevo === true;
+}

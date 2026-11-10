@@ -7,7 +7,7 @@ import MagneticWrapper from "./MagneticWrapper";
 import { SplitText } from "@/components/ui/split-text";
 import { useActiveSection } from "@/components/ui/variable-text";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useIntroDone } from "@/lib/intro";
+import { useIntroDone, introRelay } from "@/lib/intro";
 
 const FloatingPaths = dynamic<{ position: number }>(
   () => import("@/components/ui/background-paths").then((m) => ({ default: m.FloatingPaths })),
@@ -264,7 +264,8 @@ export default function Hero() {
           <div style={{ opacity: section === 0 ? 1 : 0.08, transition: "opacity 0.7s ease" }}>
             <motion.h1
               id="coque-title"
-              initial={{ opacity: 0, y: 24, scale: 0.96 }}
+              // after the intro the logo is already here (the intro's logo lands on it): no entrance of its own
+              initial={introRelay() ? false : { opacity: 0, y: 24, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 1.2, delay: 0.3, ease: [0.23, 1, 0.32, 1] }}
               whileHover={{ scale: 1.02, transition: { type: "spring", stiffness: 300, damping: 20 } }}

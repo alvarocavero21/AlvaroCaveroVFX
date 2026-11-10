@@ -7,7 +7,9 @@ import { BGPattern } from "@/components/ui/bg-pattern";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { SplitScramble } from "@/components/ui/split-text";
 
-const SHOWREEL_ID = "quPEH2QJRRI";
+// The previous reel (quPEH2QJRRI) wasn't Coque's own work: "coming soon" until the new reel is out (dragon + tiger).
+// To publish it, put its YouTube id here.
+const SHOWREEL_ID: string | null = null;
 const FPS = 24;
 
 export default function Showreel() {
@@ -123,21 +125,53 @@ export default function Showreel() {
               className="relative h-full bg-black overflow-hidden"
               style={{ boxShadow: "0 40px 120px rgba(0,0,0,0.8)" }}
             >
-              {/* Overlay: captures wheel events (pointer-events:auto) for snap-scroll;
-                  drops to none on mousedown for 700ms so YouTube clicks pass through */}
-              <div
-                ref={overlayRef}
-                className="absolute inset-0"
-                style={{ zIndex: 10, background: "transparent", pointerEvents: "auto" }}
-              />
-              <iframe
-                src={`https://www.youtube.com/embed/${SHOWREEL_ID}?autoplay=0&controls=1&rel=0&modestbranding=1`}
-                title="Showreel"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="absolute inset-0 w-full h-full"
-                style={{ border: "none" }}
-              />
+              {SHOWREEL_ID ? (
+                <>
+                  {/* Overlay: captures wheel events (pointer-events:auto) for snap-scroll;
+                      drops to none on mousedown for 700ms so YouTube clicks pass through */}
+                  <div
+                    ref={overlayRef}
+                    className="absolute inset-0"
+                    style={{ zIndex: 10, background: "transparent", pointerEvents: "auto" }}
+                  />
+                  <iframe
+                    src={`https://www.youtube.com/embed/${SHOWREEL_ID}?autoplay=0&controls=1&rel=0&modestbranding=1`}
+                    title="Showreel"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                    style={{ border: "none" }}
+                  />
+                </>
+              ) : (
+                /* Coming soon: no video yet */
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ background: "radial-gradient(ellipse 70% 55% at 50% 60%, rgba(var(--accent-rgb),0.10), transparent 70%)" }}
+                  />
+                  <p
+                    className="relative flex items-center gap-2 text-[10px] tracking-[0.5em] uppercase text-gold mb-4"
+                    style={{ fontFamily: "Inter, sans-serif" }}
+                  >
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+                    In production
+                  </p>
+                  <h3
+                    className="relative text-white leading-none"
+                    style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      fontSize: "clamp(3rem, 9vw, 8rem)",
+                      letterSpacing: "0.12em",
+                    }}
+                  >
+                    <SplitScramble text="COMING SOON" stagger={0.05} />
+                  </h3>
+                  <p className="relative mt-4 text-xs md:text-sm text-muted tracking-[0.25em] uppercase" style={{ fontFamily: "Inter, sans-serif" }}>
+                    New demo reel · 2026
+                  </p>
+                </div>
+              )}
             </motion.div>
           </SpotlightCard>
         </div>
