@@ -7,10 +7,10 @@ import { BGPattern } from "@/components/ui/bg-pattern";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { SplitScramble } from "@/components/ui/split-text";
 
-// The previous reel (quPEH2QJRRI) wasn't Coque's own work: "coming soon" until the new reel is out (dragon + tiger).
-// To publish it, put its YouTube id here.
-const SHOWREEL_ID: string | null = null;
-const FPS = 24;
+// Demo Reel 2026 (2026-11-15): "Alvaro Cavero – VFX Demo Reel 2026" — dragon, fighter jet, tank, tiger, river.
+// null shows the "coming soon" panel.
+const SHOWREEL_ID: string | null = "b49EUAbJTvQ";
+const FPS = 30;
 
 export default function Showreel() {
   const { ref, inView } = useInView({ threshold: 0.25, triggerOnce: false });
@@ -182,7 +182,7 @@ export default function Showreel() {
             [{timecode}]
           </span>
           <span className="text-[9px] tracking-[0.25em] text-gold/20" style={{ fontFamily: "'Courier New', monospace" }}>
-            24FPS · 4K
+            30FPS · 4K
           </span>
         </div>
       </div>
