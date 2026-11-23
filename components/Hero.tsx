@@ -381,12 +381,48 @@ export default function Hero() {
 
       </div>
       )}
-      {/* Scroll hint — fades out once user navigates away */}
+      {/* Scroll hint (desktop/tablet) — vertical, on the right edge, so it's obvious the page continues */}
+      <motion.button
+        type="button"
+        aria-label="Scroll down"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: showHint ? 1 : 0, x: showHint ? 0 : 12 }}
+        transition={{ delay: showHint ? 2.2 : 0, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
+        className="group absolute right-[22px] bottom-10 hidden sm:flex flex-col items-center gap-4"
+        onClick={() => window.dispatchEvent(new CustomEvent("snap-goto", { detail: 1 }))}
+        style={{ cursor: "pointer", zIndex: 10, pointerEvents: showHint ? "auto" : "none" }}
+      >
+        <span
+          className="text-[11px] tracking-[0.45em] uppercase opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+          style={{ fontFamily: "Inter, sans-serif", writingMode: "vertical-rl", color: "var(--accent)" }}
+        >
+          Scroll down
+        </span>
+        {/* track with a light running down it */}
+        <span className="relative block w-px h-24 overflow-hidden" style={{ background: "rgba(255,255,255,0.12)" }}>
+          <motion.span
+            className="absolute left-0 top-0 block w-px h-8"
+            style={{ background: "linear-gradient(to bottom, transparent, var(--accent), transparent)" }}
+            animate={{ y: [-32, 96] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </span>
+        <motion.svg
+          className="w-3 h-3 opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+          style={{ color: "var(--accent)" }}
+          fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"
+          animate={{ y: [0, 4, 0] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+        </motion.svg>
+      </motion.button>
+      {/* Scroll hint (mobile only) — fades out once user navigates away */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: showHint ? 1 : 0, y: showHint ? 0 : 12 }}
         transition={{ delay: showHint ? 2.2 : 0, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex sm:hidden flex-col items-center gap-2"
         onClick={() => window.dispatchEvent(new CustomEvent("snap-goto", { detail: 1 }))}
         style={{ cursor: "pointer", zIndex: 10 }}
       >
