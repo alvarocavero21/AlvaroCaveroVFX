@@ -186,6 +186,7 @@ function HeroLogo({ sw, isLight }: { sw: HeroSW; isLight: boolean }) {
 
 export default function Hero() {
   const [showHint, setShowHint] = useState(true);
+  const hintDelay = useRef(2.2); // first appearance waits for the intro; later returns are quick
   const [noWebGL, setNoWebGL] = useState(false);
   const section = useActiveSection();
   const { theme } = useTheme();
@@ -195,7 +196,10 @@ export default function Hero() {
 
   useEffect(() => {
     const handle = (e: Event) => {
-      if ((e as CustomEvent<number>).detail !== 0) setShowHint(false);
+      // hidden on the other sections, back again whenever the user returns to the Hero (no long delay then)
+      const enHero = (e as CustomEvent<number>).detail === 0;
+      if (!enHero) hintDelay.current = 0.35;
+      setShowHint(enHero);
     };
     window.addEventListener("snap-section", handle);
     return () => window.removeEventListener("snap-section", handle);
@@ -387,30 +391,35 @@ export default function Hero() {
         aria-label="Scroll down"
         initial={{ opacity: 0 }}
         animate={{ opacity: showHint ? 1 : 0, x: showHint ? 0 : 12 }}
-        transition={{ delay: showHint ? 2.2 : 0, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
-        className="group absolute right-[22px] bottom-10 hidden sm:flex flex-col items-center gap-4"
+        transition={{ delay: showHint ? hintDelay.current : 0, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
+        className="group absolute right-[18px] bottom-10 hidden sm:flex flex-col items-center gap-4"
         onClick={() => window.dispatchEvent(new CustomEvent("snap-goto", { detail: 1 }))}
         style={{ cursor: "pointer", zIndex: 10, pointerEvents: showHint ? "auto" : "none" }}
       >
         <span
-          className="text-[11px] tracking-[0.45em] uppercase opacity-80 group-hover:opacity-100 transition-opacity duration-300"
-          style={{ fontFamily: "Inter, sans-serif", writingMode: "vertical-rl", color: "var(--accent)" }}
+          className="text-[13px] font-medium tracking-[0.45em] uppercase group-hover:brightness-125 transition-all duration-300"
+          style={{
+            fontFamily: "Inter, sans-serif",
+            writingMode: "vertical-rl",
+            color: "var(--accent)",
+            textShadow: "0 0 10px color-mix(in srgb, var(--accent) 55%, transparent)",
+          }}
         >
           Scroll down
         </span>
         {/* track with a light running down it */}
-        <span className="relative block w-px h-24 overflow-hidden" style={{ background: "rgba(255,255,255,0.12)" }}>
+        <span className="relative block w-[2px] h-28 overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.18)" }}>
           <motion.span
-            className="absolute left-0 top-0 block w-px h-8"
+            className="absolute left-0 top-0 block w-[2px] h-10"
             style={{ background: "linear-gradient(to bottom, transparent, var(--accent), transparent)" }}
-            animate={{ y: [-32, 96] }}
+            animate={{ y: [-40, 112] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
           />
         </span>
         <motion.svg
-          className="w-3 h-3 opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+          className="w-4 h-4 group-hover:brightness-125 transition-all duration-300"
           style={{ color: "var(--accent)" }}
-          fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"
           animate={{ y: [0, 4, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
         >
@@ -421,13 +430,13 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: showHint ? 1 : 0, y: showHint ? 0 : 12 }}
-        transition={{ delay: showHint ? 2.2 : 0, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
+        transition={{ delay: showHint ? hintDelay.current : 0, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex sm:hidden flex-col items-center gap-2"
         onClick={() => window.dispatchEvent(new CustomEvent("snap-goto", { detail: 1 }))}
         style={{ cursor: "pointer", zIndex: 10 }}
       >
-        <span className="text-[9px] tracking-[0.4em] uppercase text-muted" style={{ fontFamily: "Inter, sans-serif" }}>
-          Scroll
+        <span className="text-[11px] font-medium tracking-[0.4em] uppercase" style={{ fontFamily: "Inter, sans-serif", color: "var(--accent)" }}>
+          Scroll down
         </span>
         <motion.div
           animate={{ y: [0, 10, 0] }}
