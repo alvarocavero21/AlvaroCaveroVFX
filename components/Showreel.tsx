@@ -7,9 +7,11 @@ import { BGPattern } from "@/components/ui/bg-pattern";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { SplitScramble } from "@/components/ui/split-text";
 
-// Demo Reel 2026 (2026-11-15): "Alvaro Cavero – VFX Demo Reel 2026" — dragon, fighter jet, tank, tiger, river.
-// null shows the "coming soon" panel.
-const SHOWREEL_ID: string | null = "b49EUAbJTvQ";
+// Demo Reel 2026 v2 (2026-11-23): "Alvaro Cavero – VFX Demo Reel 2026" — dragon, fighter jet, tank, tiger,
+// rollover, river (before: b49EUAbJTvQ). null shows the "coming soon" panel.
+const SHOWREEL_ID: string | null = "9GaHtmdz0mo";
+// height of YouTube's control bar, left uncovered so seek / volume / fullscreen keep working
+const CONTROLS_PX = 56;
 const FPS = 30;
 
 export default function Showreel() {
@@ -17,27 +19,47 @@ export default function Showreel() {
   const [timecode, setTimecode] = useState("00:00:00");
   const startRef    = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const overlayRef  = useRef<HTMLDivElement>(null);
-  const restoreRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const iframeRef   = useRef<HTMLIFrameElement>(null);
+  const playingRef  = useRef(false);
 
-  // On mousedown: briefly drop pointer-events so the click reaches YouTube,
-  // then restore so the overlay can keep capturing wheel events.
+  // The overlay over the video keeps capturing wheel events (snap-scroll). Before, it let clicks through only for
+  // 700 ms after a mousedown, so it took TWO clicks to play. Now a single click on it plays / pauses the video
+  // through the YouTube iframe API (enablejsapi=1 + postMessage); the player's state comes back by postMessage too,
+  // so it stays in sync if the YouTube controls are used.
+  const ytCommand = (func: "playVideo" | "pauseVideo") => {
+    iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "command", func, args: [] }), "*");
+  };
+  const togglePlay = () => {
+    ytCommand(playingRef.current ? "pauseVideo" : "playVideo");
+    playingRef.current = !playingRef.current;
+  };
   useEffect(() => {
-    const overlay = overlayRef.current;
-    if (!overlay) return;
-    const handleMouseDown = () => {
-      overlay.style.pointerEvents = "none";
-      if (restoreRef.current) clearTimeout(restoreRef.current);
-      restoreRef.current = setTimeout(() => {
-        if (overlayRef.current) overlayRef.current.style.pointerEvents = "auto";
-      }, 700);
+    const onMessage = (e: MessageEvent) => {
+      if (typeof e.origin !== "string" || !e.origin.includes("youtube")) return;
+      let data: { event?: string; info?: unknown };
+      try {
+        data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+      } catch {
+        return;
+      }
+      if (data?.event === "onStateChange" && typeof data.info === "number") {
+        playingRef.current = data.info === 1 || data.info === 3; // playing / buffering
+      } else if (data?.event === "infoDelivery" && data.info && typeof data.info === "object") {
+        const st = (data.info as { playerState?: number }).playerState;
+        if (typeof st === "number") playingRef.current = st === 1 || st === 3;
+      }
     };
-    overlay.addEventListener("mousedown", handleMouseDown);
-    return () => {
-      overlay.removeEventListener("mousedown", handleMouseDown);
-      if (restoreRef.current) clearTimeout(restoreRef.current);
-    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
   }, []);
+  const startListening = () => {
+    // ask the player to report its state changes to this page (repeated: the player may not be ready at onLoad)
+    const ping = () =>
+      iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "listening", id: "showreel", channel: "widget" }), "*");
+    ping();
+    setTimeout(ping, 800);
+    setTimeout(ping, 2000);
+  };
 
   useEffect(() => {
     if (inView) {
@@ -127,15 +149,19 @@ export default function Showreel() {
             >
               {SHOWREEL_ID ? (
                 <>
-                  {/* Overlay: captures wheel events (pointer-events:auto) for snap-scroll;
-                      drops to none on mousedown for 700ms so YouTube clicks pass through */}
+                  {/* Overlay: captures wheel events for snap-scroll and turns ONE click into play / pause.
+                      The bottom strip (YouTube's control bar) is left uncovered. */}
                   <div
-                    ref={overlayRef}
-                    className="absolute inset-0"
-                    style={{ zIndex: 10, background: "transparent", pointerEvents: "auto" }}
+                    className="absolute inset-x-0 top-0"
+                    role="button"
+                    aria-label="Play / pause showreel"
+                    onClick={togglePlay}
+                    style={{ zIndex: 10, bottom: CONTROLS_PX, background: "transparent", cursor: "pointer" }}
                   />
                   <iframe
-                    src={`https://www.youtube.com/embed/${SHOWREEL_ID}?autoplay=0&controls=1&rel=0&modestbranding=1`}
+                    ref={iframeRef}
+                    onLoad={startListening}
+                    src={`https://www.youtube.com/embed/${SHOWREEL_ID}?autoplay=0&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
                     title="Showreel"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
