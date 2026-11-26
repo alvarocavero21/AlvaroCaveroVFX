@@ -25,6 +25,8 @@ type Project = {
   breakdown: boolean;
   year: string;
   youtubeId: string;
+  /** own cover frame (in /public); otherwise YouTube's auto thumbnail, which can land mid-breakdown */
+  poster?: string;
 };
 
 // Ordered by strength, not by date: the first featured project is the big hero card
@@ -54,6 +56,7 @@ const projects: Project[] = [
     breakdown: true,
     year: "2026",
     youtubeId: "NlZMsdZuCcI",
+    poster: "/images/posters/reentry.jpg",
   },
   {
     id: 2,
@@ -212,6 +215,7 @@ function Thumb({ p, hovered, preview = true }: { p: Project; hovered: boolean; p
   const [q, setQ] = useState(0);
   const imgRef = useRef<HTMLImageElement>(null);
   const check = (img: HTMLImageElement) => {
+    if (p.poster) return;
     if (img.naturalWidth <= 120) setQ((v) => Math.min(v + 1, THUMB_QUALITIES.length - 1));
   };
   // The page is prerendered, so the image can finish loading before hydration and onLoad never fires.
@@ -223,7 +227,7 @@ function Thumb({ p, hovered, preview = true }: { p: Project; hovered: boolean; p
     <>
       <img
         ref={imgRef}
-        src={`https://img.youtube.com/vi/${p.youtubeId}/${THUMB_QUALITIES[q]}.jpg`}
+        src={p.poster ?? `https://img.youtube.com/vi/${p.youtubeId}/${THUMB_QUALITIES[q]}.jpg`}
         alt={p.title}
         onLoad={(e) => check(e.currentTarget)}
         onError={(e) => check(e.currentTarget)}
